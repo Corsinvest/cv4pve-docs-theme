@@ -1,0 +1,36 @@
+---
+title: cv4pve-TOOL
+description: TODO — one sentence, shown in search results.
+template: splash
+hero:
+  title: TODO — what problem it solves, with <span class="accent-mark">Proxmox VE</span> highlighted
+  tagline: Runs outside the nodes, API only — TODO what it does, verified against the code.
+  actions:
+    - text: Get started
+      link: /cv4pve-TOOL/getting-started/
+      icon: right-arrow
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import CtaBand from '@corsinvest/cv4pve-docs-theme/components/CtaBand.astro';
+import proxmoxLogo from '../../assets/proxmox-logo.svg';
+
+{/* The hero panel (install and run) and the cv4pve-admin banner come from the theme options in astro.config.mjs. */}
+
+## Why
+
+TODO — the Proxmox VE problem the tool solves, concretely, before any feature list.
+
+## Outside the nodes, API only
+
+TODO — how it runs: from where, what it talks to, what it needs (link the Permissions page).
+
+## What it does for you
+
+<CardGrid>
+  <LinkCard title="TODO" description="TODO — one feature, verified against the code." href="/cv4pve-TOOL/getting-started/" />
+</CardGrid>
+
+Part of the [cv4pve suite](https://www.corsinvest.it/en/cv4pve/): open source tools for Proxmox VE by Corsinvest, public since 2016.
+
+<CtaBand title="TODO — Run your first …" text="TODO" proxmoxLogo={proxmoxLogo} />

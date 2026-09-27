@@ -1,0 +1,66 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * Installation table of a cv4pve tool. Every channel is produced by the shared release workflow
+ * (Corsinvest/.github, cv4pve-tools-publish.yml) from the tool's packaging/config, and every name
+ * derives from the repository name:
+ *   release zips  <repo>-linux-{x64,arm64,arm}.zip, <repo>-osx-{x64,arm64}.zip, <repo>.exe-win-{x64,x86,arm64}.zip
+ *   WinGet        Corsinvest.cv4pve.<name>          (winget-id; node-protect is "nodeprotect")
+ *   Homebrew      Formula/<repo>.rb in Corsinvest/homebrew-tap
+ *   AUR, deb, rpm <repo>, only for type=cli
+ *   macOS pkg     <repo>-<version>-{x86_64,arm64}.pkg
+ * List only the channels the tool's packaging/config enables.
+ */
+type Channel = 'linux' | 'winget' | 'windows' | 'brew' | 'pkg' | 'macos' | 'deb' | 'rpm' | 'aur';
+
+interface Props {
+  /** Repository name, e.g. `cv4pve-diag` — also the binary and package name. */
+  repo: string;
+  /** WinGet id. Default `Corsinvest.cv4pve.<name>`. */
+  winget?: string;
+  /** Channels the tool ships, in table order. Default: all. */
+  channels?: Channel[];
+}
+
+const ALL: Channel[] = ['linux', 'deb', 'rpm', 'aur', 'winget', 'windows', 'brew', 'pkg', 'macos'];
+const { repo, winget = `Corsinvest.cv4pve.${repo.replace(/^cv4pve-/, '')}`, channels = ALL } = Astro.props;
+const releases = `https://github.com/Corsinvest/${repo}/releases/latest`;
+
+const rows: Record<Channel, { platform: string; how: string }> = {
+  linux: {
+    platform: 'Linux',
+    how: `<code>wget ${releases}/download/${repo}-linux-x64.zip &amp;&amp; unzip ${repo}-linux-x64.zip &amp;&amp; chmod +x ${repo}</code><br/>ARM: <code>${repo}-linux-arm64.zip</code>, <code>${repo}-linux-arm.zip</code>`,
+  },
+  deb: { platform: 'Debian / Ubuntu', how: `<code>sudo dpkg -i ${repo}-VERSION-ARCH.deb</code> (amd64, arm64, armhf)` },
+  rpm: { platform: 'RHEL / Fedora', how: `<code>sudo rpm -i ${repo}-VERSION-ARCH.rpm</code> (x86_64, aarch64, armv7hl)` },
+  aur: { platform: 'Arch Linux', how: `<code>yay -S ${repo}</code>` },
+  winget: { platform: 'Windows (WinGet)', how: `<code>winget install ${winget}</code>` },
+  windows: { platform: 'Windows (manual)', how: `<code>${repo}.exe-win-x64.zip</code> — also x86 and arm64` },
+  brew: { platform: 'macOS (Homebrew)', how: `<code>brew install corsinvest/tap/${repo}</code>` },
+  pkg: { platform: 'macOS (installer)', how: `<code>${repo}-VERSION-arm64.pkg</code> (Apple silicon) or <code>-x86_64.pkg</code> (Intel)` },
+  macos: { platform: 'macOS (manual)', how: `<code>${repo}-osx-arm64.zip</code> or <code>${repo}-osx-x64.zip</code>` },
+};
+---
+
+<table>
+  <thead>
+    <tr><th>Platform</th><th>How</th></tr>
+  </thead>
+  <tbody>
+    {
+      channels.map((c) => (
+        <tr>
+          <td><strong>{rows[c].platform}</strong></td>
+          <td set:html={rows[c].how} />
+        </tr>
+      ))
+    }
+  </tbody>
+</table>
+
+<p>
+  Binaries are self-contained: no .NET runtime to install. All files are on the
+  <a href={releases} target="_blank" rel="noopener noreferrer">latest release</a> page.
+</p>

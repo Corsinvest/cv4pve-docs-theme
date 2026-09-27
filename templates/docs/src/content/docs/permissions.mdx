@@ -1,0 +1,25 @@
+---
+title: Permissions
+description: The Proxmox VE user, API token and privileges cv4pve-TOOL needs.
+---
+
+import ApiTokenSetup from '@corsinvest/cv4pve-docs-theme/components/ApiTokenSetup.astro';
+
+cv4pve-TOOL works through the API, so what it can do is exactly what its account is allowed to.
+Use a dedicated user with an API token rather than `root@pam`.
+
+## Create the user and the token
+
+<ApiTokenSetup
+  tool="cv4pve-TOOL"
+  user="TOOL@pve"
+  role="CV4PVETOOL"
+  tokenId="TOOL"
+  privileges={['VM.Audit', 'TODO']}
+/>
+
+## Privileges
+
+| Privilege | On | Used for | Without it |
+|---|---|---|---|
+| `VM.Audit` | `/vms` | TODO | TODO |

@@ -1,0 +1,50 @@
+{
+  "name": "@corsinvest/cv4pve-docs-theme",
+  "version": "1.0.0",
+  "description": "Starlight theme for the cv4pve documentation sites by Corsinvest.",
+  "keywords": [
+    "starlight",
+    "starlight-plugin",
+    "astro",
+    "cv4pve",
+    "proxmox"
+  ],
+  "homepage": "https://github.com/Corsinvest/cv4pve-docs-theme#readme",
+  "bugs": "https://github.com/Corsinvest/cv4pve-docs-theme/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Corsinvest/cv4pve-docs-theme.git"
+  },
+  "license": "MIT",
+  "author": "Corsinvest Srl (https://www.corsinvest.it)",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    },
+    "./components/*": "./components/*",
+    "./styles/*": "./styles/*",
+    "./assets/*": "./assets/*",
+    "./route-middleware": "./route-middleware.js"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "install-panel.js",
+    "route-middleware.js",
+    "icons.js",
+    "components",
+    "styles",
+    "fonts",
+    "assets",
+    "3rd-party-licenses.md"
+  ],
+  "dependencies": {
+    "@astrojs/markdown-satteri": "^0.4.2"
+  },
+  "peerDependencies": {
+    "@astrojs/starlight": ">=0.42.0",
+    "astro": ">=7.0.0"
+  }
+}
