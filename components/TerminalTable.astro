@@ -164,4 +164,48 @@ const tone = (value: string): Tone | '' =>
   .cv-terminal-foot :global(code) {
     color: #d6e2ee;
   }
+
+  /* Light theme: a light terminal, so it does not stand out as a black block on a light page.
+     Badges use Starlight's -high tokens, which it adapts to the theme, as Severity does. */
+  :global(:root[data-theme='light']) .cv-terminal {
+    background: #f4f7fb;
+    color: #1b2b3b;
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--cv-blue) 12%, transparent);
+  }
+  :global(:root[data-theme='light']) .cv-terminal-bar {
+    background: #e6edf5;
+  }
+  :global(:root[data-theme='light']) .cv-terminal-bar em,
+  :global(:root[data-theme='light']) th,
+  :global(:root[data-theme='light']) .cv-terminal-foot {
+    color: #4a6178;
+  }
+  :global(:root[data-theme='light']) th {
+    border-bottom-color: rgb(26 66 105 / 0.18);
+  }
+  :global(:root[data-theme='light']) td {
+    border-bottom-color: rgb(26 66 105 / 0.07);
+  }
+  :global(:root[data-theme='light']) tbody tr:hover {
+    background: rgb(42 111 174 / 0.07);
+  }
+  :global(:root[data-theme='light']) .cv-code {
+    color: var(--cv-blue-bright);
+  }
+  :global(:root[data-theme='light']) .cv-muted {
+    color: #4a6178;
+  }
+  :global(:root[data-theme='light']) .cv-accent {
+    color: var(--sl-color-orange-high);
+  }
+  :global(:root[data-theme='light']) .cv-terminal-foot {
+    border-top-color: rgb(26 66 105 / 0.12);
+  }
+  :global(:root[data-theme='light']) .cv-terminal-foot :global(code) {
+    color: #1b2b3b;
+  }
+  :global(:root[data-theme='light']) .cv-badge.critical { color: var(--sl-color-red-high); }
+  :global(:root[data-theme='light']) .cv-badge.warning { color: var(--sl-color-orange-high); }
+  :global(:root[data-theme='light']) .cv-badge.info { color: var(--sl-color-blue-high); }
+  :global(:root[data-theme='light']) .cv-badge.ok { color: var(--sl-color-green-high); }
 </style>
