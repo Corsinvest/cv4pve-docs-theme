@@ -121,6 +121,37 @@ h1,
   line-height: 1;
 }
 
+/* Header: "Part of the cv4pve suite" written beside the suite icon, the only way to show text
+   in Starlight's social links without overriding the component. Icon only on narrow headers. */
+.social-icons a[href="https://www.corsinvest.it/en/cv4pve/"] {
+  gap: 0.4rem;
+  align-items: center;
+  text-decoration: none;
+}
+/* The round Corsinvest logo instead of the Starlight icon set in the social config (only Starlight
+   icons are accepted there); lighter blue in the dark theme, as the product icons. */
+.social-icons a[href="https://www.corsinvest.it/en/cv4pve/"] svg {
+  display: none;
+}
+.social-icons a[href="https://www.corsinvest.it/en/cv4pve/"]::before {
+  content: '';
+  width: 1.25em;
+  height: 1.25em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%231a4269'/%3E%3Cpath fill='%23fff' transform='translate%28100 100%29 scale%280.6%29 translate%28-93 -100%29' d='M78 22Q64 22 60 38L24 162Q20 178 36 178L110 178Q124 178 128 162L138 124L110 124L102 156L60 156L90 44L132 44L124 76L152 76L162 38Q166 22 152 22Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+:root[data-theme='dark'] .social-icons a[href="https://www.corsinvest.it/en/cv4pve/"]::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a6fae'/%3E%3Cpath fill='%23fff' transform='translate%28100 100%29 scale%280.6%29 translate%28-93 -100%29' d='M78 22Q64 22 60 38L24 162Q20 178 36 178L110 178Q124 178 128 162L138 124L110 124L102 156L60 156L90 44L132 44L124 76L152 76L162 38Q166 22 152 22Z'/%3E%3C/svg%3E");
+}
+@media (min-width: 72rem) {
+  .social-icons a[href="https://www.corsinvest.it/en/cv4pve/"]::after {
+    content: 'Part of the cv4pve suite';
+    font-family: var(--cv-font-display);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
 /* Home hero: the grid and glow backdrop of corsinvest.it. Pure decoration — if
    Starlight renames the class, the hero simply loses the backdrop. */
 .hero {
@@ -195,6 +226,14 @@ h1,
   border-color: rgb(125 178 232 / 0.35);
   color: #fff;
 }
+/* Brand focus ring for keyboard users; none after a mouse click. */
+.cv-os button:focus-visible {
+  outline: 2px solid var(--cv-blue-bright);
+  outline-offset: 1px;
+}
+.cv-os button:focus:not(:focus-visible) {
+  outline: none;
+}
 .cv-hero-term-bar { align-items: center; }
 .cv-hero-term .c { color: #6f8aa5; }
 .cv-hero-term .p { color: #7db2e8; }
@@ -202,6 +241,24 @@ h1,
 .cv-hero-term .warning { color: #f2c462; font-weight: 700; }
 .cv-hero-term .info { color: #8fc0f2; font-weight: 700; }
 .cv-hero-term .ok { color: #86d9a4; font-weight: 700; }
+
+/* Light theme: a light terminal, as TerminalTable. */
+:root[data-theme='light'] .cv-hero-term {
+  background: #f4f7fb;
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--cv-blue) 12%, transparent);
+}
+:root[data-theme='light'] .cv-hero-term-bar { background: #e6edf5; }
+:root[data-theme='light'] .cv-hero-term pre { color: #1b2b3b; }
+:root[data-theme='light'] .cv-hero-term .c { color: #6a7f94; }
+:root[data-theme='light'] .cv-hero-term .p { color: var(--cv-blue-bright); }
+:root[data-theme='light'] .cv-hero-term .critical { color: var(--sl-color-red-high); }
+:root[data-theme='light'] .cv-hero-term .warning { color: var(--sl-color-orange-high); }
+:root[data-theme='light'] .cv-hero-term .info { color: var(--sl-color-blue-high); }
+:root[data-theme='light'] .cv-hero-term .ok { color: var(--sl-color-green-high); }
+:root[data-theme='light'] .cv-os button { color: #4a6178; }
+:root[data-theme='light'] .cv-os button:hover,
+:root[data-theme='light'] .cv-os button[aria-pressed='true'] { color: #1b2b3b; }
+:root[data-theme='light'] .cv-os button[aria-pressed='true'] { border-color: rgb(26 66 105 / 0.3); }
 
 /* Highlighted words: a solid brand-blue block, as on the corsinvest.it home. */
 .accent-mark {

@@ -3,7 +3,8 @@
  * SPDX-FileCopyrightText: Copyright Corsinvest Srl
  * SPDX-License-Identifier: MIT
  *
- * Closing call-to-action band for the home page: start using the tool, or ask for support.
+ * Closing call-to-action band for the home page: start using the tool, or ask for support. The line
+ * above the title links to the cv4pve suite on corsinvest.it, so every home page says it once, visibly.
  *
  * `proxmoxLogo` shows "Made by Corsinvest, official Proxmox partner" with the original Proxmox logo,
  * linked to Corsinvest's entry in the Proxmox partner directory so the claim can be checked. The logo
@@ -27,10 +28,12 @@ const { title, text, primary = { label: 'Get started', href: `${base}/getting-st
 
 const PROXMOX_PARTNER_URL = 'https://www.proxmox.com/en/partners/find-partner/all/partner/corsinvest';
 const SUPPORT_URL = 'https://www.corsinvest.it/en/cv4pve/';
+const SUITE_URL = 'https://www.corsinvest.it/en/cv4pve/';
 ---
 
 <div class="cv-cta not-content">
   <div>
+    <a class="cv-cta-suite" href={SUITE_URL} target="_blank" rel="noopener noreferrer">Part of the cv4pve suite →</a>
     <h2>{title}</h2>
     <p>{text}</p>
     {
@@ -64,6 +67,20 @@ const SUPPORT_URL = 'https://www.corsinvest.it/en/cv4pve/';
     background:
       radial-gradient(ellipse 60% 120% at 100% 0%, rgb(42 111 174 / 0.55), transparent 60%),
       linear-gradient(135deg, var(--cv-blue-deep), var(--cv-surface-dark));
+  }
+  .cv-cta-suite {
+    display: inline-block;
+    margin-bottom: 0.6rem;
+    font-family: var(--cv-font-display);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8fc0f2;
+    text-decoration: none;
+  }
+  .cv-cta-suite:hover {
+    color: #fff;
   }
   .cv-cta h2 {
     margin: 0;

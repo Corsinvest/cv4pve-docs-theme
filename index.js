@@ -6,6 +6,7 @@
 import { isSatteriProcessor, satteri } from '@astrojs/markdown-satteri';
 
 const PACKAGE = '@corsinvest/cv4pve-docs-theme';
+const SUITE_URL = 'https://www.corsinvest.it/en/cv4pve/';
 
 /**
  * @typedef {object} CorsinvestThemeOptions
@@ -19,6 +20,8 @@ const PACKAGE = '@corsinvest/cv4pve-docs-theme';
  *   `{ module: 'diagnostics' }`: the home page gets a banner linking to that module's docs.
  * @property {import('./install-panel.js').InstallPanelOptions} [install] Install-and-run panel shown
  *   in the hero of the home page (a page with a hero and no hero image).
+ * @property {{ url: string, siteId: number }} [matomo] Matomo instance and site ID: page views and
+ *   outbound links are tracked without cookies, so no consent banner is needed.
  */
 
 /**
@@ -34,18 +37,24 @@ const PACKAGE = '@corsinvest/cv4pve-docs-theme';
  */
 export default function corsinvestTheme(options) {
   if (!options?.repo) throw new Error(`${PACKAGE}: the "repo" option is required, e.g. { repo: 'cv4pve-diag' }`);
-  const { repo, branch = 'master', docsPath = 'docs', install, icon, admin } = options;
+  const { repo, branch = 'master', docsPath = 'docs', install, icon, admin, matomo } = options;
 
   return {
     name: PACKAGE,
     hooks: {
-      'config:setup'({ config, updateConfig, addIntegration, addRouteMiddleware, astroConfig }) {
+      'config:setup'({ config, updateConfig, addIntegration, addRouteMiddleware, astroConfig, command }) {
         const base = (astroConfig.base ?? '/').replace(/\/$/, '');
         updateConfig({
           ...(icon && {
             favicon: config.favicon && config.favicon !== '/favicon.svg' ? config.favicon : icon.light,
-            head: [...(config.head ?? []), ...productIconHead(base, icon)],
           }),
+          head: [
+            ...(config.head ?? []),
+            ...(icon ? productIconHead(base, icon) : []),
+            socialLinksInNewTab(),
+            // Only in the built site: local dev visits stay out of the statistics.
+            ...(matomo && command === 'build' ? [matomoHead(matomo)] : []),
+          ],
           // A logo set by the site wins; otherwise the Corsinvest wordmark, as in the corsinvest.it header.
           logo: config.logo ?? {
             light: `${PACKAGE}/assets/corsinvest-wordmark.svg`,
@@ -56,7 +65,11 @@ export default function corsinvestTheme(options) {
           customCss: [`${PACKAGE}/styles/brand.css`, ...(config.customCss ?? [])],
           social: config.social?.length
             ? config.social
-            : [{ icon: 'github', label: 'GitHub', href: `https://github.com/Corsinvest/${repo}` }],
+            : [
+                { icon: 'github', label: 'GitHub', href: `https://github.com/Corsinvest/${repo}` },
+                // brand.css draws the Corsinvest "C" in place of this icon and writes the label beside it.
+                { icon: 'puzzle', label: 'Part of the cv4pve suite', href: SUITE_URL },
+              ],
           editLink: config.editLink?.baseUrl
             ? config.editLink
             : { baseUrl: `https://github.com/Corsinvest/${repo}/edit/${branch}/${docsPath}/` },
@@ -132,6 +145,39 @@ function productIconHead(base, icon) {
 }
 
 /**
+ * Head script: the header social links (GitHub, cv4pve suite) open in a new tab, like the other
+ * external links, and show their label as tooltip. Starlight's social config has no target or
+ * title option and the component is not overridden; its links are the only ones with rel="me".
+ */
+function socialLinksInNewTab() {
+  return {
+    tag: 'script',
+    content:
+      `document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('a[rel~="me"][href^="http"]')` +
+      `.forEach((a)=>{a.target='_blank';a.rel='me noopener noreferrer';a.title||=a.textContent.trim();});});`,
+  };
+}
+
+/**
+ * Head script: Matomo page views and outbound links. Cookies off, so visits are counted without
+ * recognising the visitor and no consent banner is required; IP anonymisation is set on the
+ * Matomo server.
+ * @param {{ url: string, siteId: number }} matomo
+ */
+function matomoHead({ url, siteId }) {
+  const base = url.endsWith('/') ? url : `${url}/`;
+  return {
+    tag: 'script',
+    content:
+      `var _paq=window._paq=window._paq||[];_paq.push(['disableCookies']);_paq.push(['trackPageView']);` +
+      `_paq.push(['enableLinkTracking']);(function(){var u=${JSON.stringify(base)};` +
+      `_paq.push(['setTrackerUrl',u+'matomo.php']);_paq.push(['setSiteId',${JSON.stringify(String(siteId))}]);` +
+      `var d=document,g=d.createElement('script'),s=d.getElementsByTagName('script')[0];` +
+      `g.async=true;g.src=u+'matomo.js';s.parentNode.insertBefore(g,s);})();`,
+  };
+}
+
+/**
  * Vite plugin exposing the theme options to runtime code as `virtual:cv4pve-docs-theme/config`.
  * @param {object} value
  */
@@ -152,7 +198,7 @@ function corsinvestSidebarGroup() {
   return {
     label: 'Corsinvest',
     items: [
-      { label: 'cv4pve suite', link: 'https://www.corsinvest.it/en/cv4pve/', attrs: external },
+      { label: 'cv4pve suite', link: SUITE_URL, attrs: external },
       { label: 'Professional support', link: 'https://www.corsinvest.it/en/contact/', attrs: external },
     ],
   };

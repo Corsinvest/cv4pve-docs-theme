@@ -36,8 +36,12 @@ and upgrade with it):
 
 - Corsinvest brand: colours and Barlow fonts from [corsinvest.it](https://www.corsinvest.it), light and dark theme
 - Corsinvest wordmark as logo, GitHub link and "Edit page" link for the tool's repository
+- **Part of the cv4pve suite** in the header, beside GitHub: the round Corsinvest logo, with the text on
+  wide screens, linking to the suite on corsinvest.it
 - A **Corsinvest** sidebar group: cv4pve suite, professional support
-- External links opening in a new tab, internal links unchanged
+- External links opening in a new tab, the header ones included (with their label as tooltip); internal
+  links unchanged
+- Optional Matomo statistics without cookies (`matomo` option)
 
 **Components** — use Starlight's own components first (`CardGrid`, `LinkCard`, `Tabs`, `Badge`, `Aside`,
 `Steps`, `Code`); these cover only what is shared by the cv4pve sites. They are self-contained, with scoped
@@ -47,12 +51,12 @@ styles, and touch no Starlight internals:
 |---|---|---|
 | `CliInstall.astro` | Installation table: release zips, deb, rpm, AUR, WinGet, Homebrew, macOS pkg — names derived from the repository, as the shared release workflow publishes them | Tools released with `cv4pve-tools-publish.yml`; pass `channels` / `winget` for the exceptions |
 | `CliConnection.astro` | Connection options: `--host` (several nodes), `--api-token`, `--username`/`--password`, `--validate-certificate`, `@` parameter files | Tools built on `Corsinvest.ProxmoxVE.Api.Console` login options: diag, report, autosnap, pepper, botgram, metrics-exporter |
-| `TerminalTable.astro` | A tool's tabular output as the terminal shows it: command on top, monospace table, coloured severity badges | Any tool printing tables (they share `TableGenerator`) |
+| `TerminalTable.astro` | A tool's tabular output as the terminal shows it: command on top, monospace table, coloured severity badges; dark in the dark theme, light in the light one | Any tool printing tables (they share `TableGenerator`) |
 | `FeatureGrid.astro` | Numbered feature cards, each linking to the page that explains it | Home pages |
 | `CliTroubleshooting.astro` | The hidden `--debug` and `--log-level` options and what they log | Every .NET CLI tool (not vdi) |
 | `Severity.astro` | Severity pill (Critical, Warning, Info, Ok; `Warning/Critical` gives two) with the same look as TerminalTable | Reference tables |
 | `Suite.astro` | The whole cv4pve suite, grouped as on corsinvest.it, with Starlight cards | Any site |
-| `CtaBand.astro` | Closing band: get started, professional support, "official Proxmox partner" | Home pages |
+| `CtaBand.astro` | Closing band: "Part of the cv4pve suite", get started, professional support, "official Proxmox partner" | Home pages |
 
 **Home page extras** through plugin options: an install-and-run panel in the hero (`install`), a banner
 pointing to the matching cv4pve-admin module (`admin`), and the product icon (`icon`). The `.accent-mark`
@@ -98,6 +102,7 @@ export default defineConfig({
 | `admin` | — | cv4pve-admin module running the same engine, e.g. `{ module: 'diagnostics' }`: banner on the home page |
 | `icon` | — | Product icon `{ light, dark? }`, paths in the site's `public/`: favicon and icon before the product name in the header |
 | `install` | — | Install-and-run panel in the home hero, see below |
+| `matomo` | — | `{ url, siteId }`: page views and outbound links sent to that Matomo instance, without cookies — no consent banner needed. Anonymise IPs on the Matomo server |
 
 A logo, `social` or `editLink` set in the site's own config wins over the theme's.
 

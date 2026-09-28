@@ -42,6 +42,8 @@ export interface CorsinvestThemeOptions {
   admin?: { module: string };
   /** Install-and-run panel in the home hero. */
   install?: InstallPanelOptions;
+  /** Matomo instance and site ID: page views and outbound links, without cookies. */
+  matomo?: { url: string; siteId: number };
 }
 
 /** Starlight plugin with the Corsinvest look and the settings shared by every cv4pve documentation site. */
