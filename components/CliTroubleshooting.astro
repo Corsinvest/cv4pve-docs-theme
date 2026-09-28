@@ -1,0 +1,47 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * Diagnostic options shared by every cv4pve .NET CLI tool: added by ConsoleHelper.CreateApp
+ * (diag, report, autosnap, pepper, botgram, metrics-exporter) or explicitly (node-protect, cli).
+ * Not for vdi (GUI).
+ *
+ * Verified against cv4pve-api-dotnet v9.2.x: CommandOptionExtension.cs (hidden, recursive options;
+ * --log-level overrides --debug), ConsoleHelper.cs (exception details on error), PveClientBase.cs
+ * (Debug logs each API call, sensitive parameters masked; Trace logs the full responses).
+ * Plain HTML only, so Starlight's content styles apply.
+ */
+---
+
+<p>
+  Two options, not listed in <code>--help</code>, show what the tool is doing. They work before or
+  after the command:
+</p>
+
+<table>
+  <thead>
+    <tr><th>Option</th><th>What it does</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--debug</code></td>
+      <td>
+        On an error, prints the exception type and stack trace after the <code>ERROR:</code> line. Also
+        logs each Proxmox VE API call: method, URL, status and duration, and the parameters of calls that
+        change data — passwords, tokens and tickets are masked.
+      </td>
+    </tr>
+    <tr>
+      <td><code>--log-level</code></td>
+      <td>
+        <code>Trace</code>, <code>Debug</code>, <code>Information</code>, <code>Warning</code> (default),
+        <code>Error</code> or <code>Critical</code>; overrides <code>--debug</code>. <code>Trace</code> also
+        logs the full API responses — they contain details of your cluster, so review the output before
+        sharing it.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>When you report a problem, attach the output of the failing command run with <code>--debug</code>.</p>

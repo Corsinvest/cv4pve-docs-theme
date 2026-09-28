@@ -11,7 +11,7 @@ hero:
       icon: right-arrow
 ---
 
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import FeatureGrid from '@corsinvest/cv4pve-docs-theme/components/FeatureGrid.astro';
 import CtaBand from '@corsinvest/cv4pve-docs-theme/components/CtaBand.astro';
 import proxmoxLogo from '../../assets/proxmox-logo.svg';
 
@@ -27,9 +27,9 @@ TODO — how it runs: from where, what it talks to, what it needs (link the Perm
 
 ## What it does for you
 
-<CardGrid>
-  <LinkCard title="TODO" description="TODO — one feature, verified against the code." href="/cv4pve-TOOL/getting-started/" />
-</CardGrid>
+<FeatureGrid items={[
+  { title: 'TODO', text: 'TODO — one feature, verified against the code.', href: 'getting-started/' },
+]} />
 
 Part of the [cv4pve suite](https://www.corsinvest.it/en/cv4pve/): open source tools for Proxmox VE by Corsinvest, public since 2016.
 

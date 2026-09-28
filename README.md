@@ -40,13 +40,16 @@ and upgrade with it):
 - External links opening in a new tab, internal links unchanged
 
 **Components** — use Starlight's own components first (`CardGrid`, `LinkCard`, `Tabs`, `Badge`, `Aside`,
-`Steps`, `Code`); these cover only what is shared by the cv4pve sites:
+`Steps`, `Code`); these cover only what is shared by the cv4pve sites. They are self-contained, with scoped
+styles, and touch no Starlight internals:
 
 | Component | What it shows | For |
 |---|---|---|
 | `CliInstall.astro` | Installation table: release zips, deb, rpm, AUR, WinGet, Homebrew, macOS pkg — names derived from the repository, as the shared release workflow publishes them | Tools released with `cv4pve-tools-publish.yml`; pass `channels` / `winget` for the exceptions |
 | `CliConnection.astro` | Connection options: `--host` (several nodes), `--api-token`, `--username`/`--password`, `--validate-certificate`, `@` parameter files | Tools built on `Corsinvest.ProxmoxVE.Api.Console` login options: diag, report, autosnap, pepper, botgram, metrics-exporter |
-| `ApiTokenSetup.astro` | Creating the user, role, ACL and API token with `pveum`, and the privilege-separation pitfall | Tools that use a Proxmox VE API token |
+| `TerminalTable.astro` | A tool's tabular output as the terminal shows it: command on top, monospace table, coloured severity badges | Any tool printing tables (they share `TableGenerator`) |
+| `FeatureGrid.astro` | Numbered feature cards, each linking to the page that explains it | Home pages |
+| `CliTroubleshooting.astro` | The hidden `--debug` and `--log-level` options and what they log | Every .NET CLI tool (not vdi) |
 | `Suite.astro` | The whole cv4pve suite, grouped as on corsinvest.it, with Starlight cards | Any site |
 | `CtaBand.astro` | Closing band: get started, professional support, "official Proxmox partner" | Home pages |
 
@@ -58,14 +61,14 @@ class highlights words in brand blue, as on the corsinvest.it home.
 
 ## Usage
 
-The theme is installed straight from this repository — no npm registry — at the latest `v1.x` tag:
+The theme is installed straight from this repository — no npm registry — at the latest `v2.x` tag:
 
 ```bash
 cd docs
-npm install -D "github:Corsinvest/cv4pve-docs-theme#semver:^1.0.0"
+npm install -D "github:Corsinvest/cv4pve-docs-theme#semver:^2.0.0"
 ```
 
-`npm update` moves to newer `v1.x` tags; a `v2` tag means breaking changes and needs the range changed.
+`npm update` moves to newer `v2.x` tags; a `v3` tag means breaking changes and needs the range changed.
 
 ```js
 // docs/astro.config.mjs
@@ -125,14 +128,11 @@ corsinvestTheme({
 
 ```mdx
 import CliConnection from '@corsinvest/cv4pve-docs-theme/components/CliConnection.astro';
-import ApiTokenSetup from '@corsinvest/cv4pve-docs-theme/components/ApiTokenSetup.astro';
 import CtaBand from '@corsinvest/cv4pve-docs-theme/components/CtaBand.astro';
 import proxmoxLogo from '../../assets/proxmox-logo.svg';
 
 <CliConnection user="report@pve" />
 
-<ApiTokenSetup tool="cv4pve-report" user="report@pve" role="CV4PVEReport" tokenId="report"
-  privileges={['VM.Audit', 'Datastore.Audit', 'Pool.Audit', 'Sys.Audit', 'Sys.Modify']} />
 
 <CtaBand title="Run your first report" text="…" proxmoxLogo={proxmoxLogo} />
 ```
