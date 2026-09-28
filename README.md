@@ -50,6 +50,7 @@ styles, and touch no Starlight internals:
 | `TerminalTable.astro` | A tool's tabular output as the terminal shows it: command on top, monospace table, coloured severity badges | Any tool printing tables (they share `TableGenerator`) |
 | `FeatureGrid.astro` | Numbered feature cards, each linking to the page that explains it | Home pages |
 | `CliTroubleshooting.astro` | The hidden `--debug` and `--log-level` options and what they log | Every .NET CLI tool (not vdi) |
+| `Severity.astro` | Severity pill (Critical, Warning, Info, Ok; `Warning/Critical` gives two) with the same look as TerminalTable | Reference tables |
 | `Suite.astro` | The whole cv4pve suite, grouped as on corsinvest.it, with Starlight cards | Any site |
 | `CtaBand.astro` | Closing band: get started, professional support, "official Proxmox partner" | Home pages |
 

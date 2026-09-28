@@ -49,6 +49,17 @@
   --sl-font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
 }
 
+/* Severity colours, shared by the whole site: Starlight derives its red/orange/blue/green —
+   badges (danger, caution, note, success) and asides — from these hues, with the right lightness
+   for each theme. TerminalTable uses the same hues. Critical 0, warning 40, info 211 (close to the
+   Corsinvest blue), ok 140. */
+:root {
+  --sl-hue-red: 0;
+  --sl-hue-orange: 40;
+  --sl-hue-blue: 211;
+  --sl-hue-green: 140;
+}
+
 /* Dark: a navy ground instead of neutral black.
    Starlight declares its palette inside @layer starlight.base, and unlayered rules beat
    layered ones whatever their specificity — a bare :root here would repaint light mode

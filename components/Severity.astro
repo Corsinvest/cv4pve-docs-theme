@@ -1,0 +1,62 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * Severity pill — Critical, Warning, Info, Ok — with the same look as the badges of TerminalTable,
+ * so a severity reads the same on the home page and in the reference tables. `level` may hold
+ * several values separated by "/" (e.g. "Warning/Critical" for threshold checks).
+ *
+ * Colours come from the shared hues (--sl-hue-*, set by the theme) and Starlight's -high tokens,
+ * which Starlight adapts to the light and dark theme. Scoped styles, no Starlight internals.
+ */
+interface Props {
+  level: string;
+}
+
+const TONES: Record<string, string> = { critical: 'red', warning: 'orange', info: 'blue', ok: 'green' };
+const levels = Astro.props.level.split('/').map((l) => l.trim()).filter(Boolean);
+---
+
+<span class="cv-severity-group">
+  {
+    levels.map((l) => (
+      <span class={`cv-severity ${TONES[l.toLowerCase()] ?? ''}`}>{l}</span>
+    ))
+  }
+</span>
+
+<style>
+  .cv-severity-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  .cv-severity {
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    font-family: var(--sl-font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.6;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .cv-severity.red {
+    background: hsl(var(--sl-hue-red) 65% 55% / 0.18);
+    color: var(--sl-color-red-high);
+  }
+  .cv-severity.orange {
+    background: hsl(var(--sl-hue-orange) 75% 51% / 0.2);
+    color: var(--sl-color-orange-high);
+  }
+  .cv-severity.blue {
+    background: hsl(var(--sl-hue-blue) 65% 57% / 0.18);
+    color: var(--sl-color-blue-high);
+  }
+  .cv-severity.green {
+    background: hsl(var(--sl-hue-green) 50% 52% / 0.18);
+    color: var(--sl-color-green-high);
+  }
+</style>

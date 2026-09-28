@@ -121,7 +121,7 @@ const tone = (value: string): Tone | '' =>
     color: #a9c4dd;
   }
   .cv-accent {
-    color: #f2c462;
+    color: hsl(var(--sl-hue-orange) 85% 67%);
     font-weight: 600;
   }
   .cv-wrap {
@@ -136,21 +136,23 @@ const tone = (value: string): Tone | '' =>
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
+  /* Same hues as the site's badges and asides (--sl-hue-*, set by the theme), with a lightness
+     fixed for the dark terminal background in both site themes. */
   .cv-badge.critical {
-    background: rgb(214 69 69 / 0.18);
-    color: #ff8a8a;
+    background: hsl(var(--sl-hue-red) 65% 55% / 0.18);
+    color: hsl(var(--sl-hue-red) 100% 77%);
   }
   .cv-badge.warning {
-    background: rgb(224 165 38 / 0.18);
-    color: #f2c462;
+    background: hsl(var(--sl-hue-orange) 75% 51% / 0.18);
+    color: hsl(var(--sl-hue-orange) 85% 67%);
   }
   .cv-badge.info {
-    background: rgb(74 144 217 / 0.18);
-    color: #8fc0f2;
+    background: hsl(var(--sl-hue-blue) 65% 57% / 0.18);
+    color: hsl(var(--sl-hue-blue) 80% 76%);
   }
   .cv-badge.ok {
-    background: rgb(74 190 120 / 0.18);
-    color: #86d9a4;
+    background: hsl(var(--sl-hue-green) 50% 52% / 0.18);
+    color: hsl(var(--sl-hue-green) 55% 69%);
   }
   .cv-terminal-foot {
     padding: 0.7rem 1rem;
