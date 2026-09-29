@@ -3,8 +3,9 @@
  * SPDX-FileCopyrightText: Copyright Corsinvest Srl
  * SPDX-License-Identifier: MIT
  *
- * Response files: options kept in a file and passed with @file. A System.CommandLine feature, so it
- * works the same in every cv4pve .NET CLI tool.
+ * Options in a file, passed with @file: what System.CommandLine calls a response file, so it works the
+ * same in every cv4pve .NET CLI tool. Sites title the section "Options in a file", plain words for
+ * Proxmox admins; the library's term appears once, for searches.
  *
  * The example file is built here from the login options shared by the tools on
  * Corsinvest.ProxmoxVE.Api.Console (the same as CliConnection), so every site shows the same block;
@@ -88,7 +89,7 @@ const DOCS_URL = 'https://learn.microsoft.com/dotnet/standard/commandline/syntax
 
 <p>
   A file with a password or an API token is as sensitive as the password itself: keep it readable only by
-  the account that runs the tool (<code>chmod 600</code> on Linux). Response files are a feature of the
+  the account that runs the tool (<code>chmod 600</code> on Linux). The
   <a href={DOCS_URL} target="_blank" rel="noopener noreferrer">System.CommandLine</a> library the tools are
-  built on.
+  built on calls such a file a <em>response file</em>.
 </p>
