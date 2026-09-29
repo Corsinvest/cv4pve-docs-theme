@@ -54,7 +54,7 @@ styles, and touch no Starlight internals:
 | `TerminalTable.astro` | A tool's tabular output as the terminal shows it: command on top, monospace table, coloured severity badges; dark in the dark theme, light in the light one | Any tool printing tables (they share `TableGenerator`) |
 | `FeatureGrid.astro` | Numbered feature cards, each linking to the page that explains it | Home pages |
 | `CliResponseFiles.astro` | Response files: options in a file passed with `@file`. The example file holds the shared connection options (host, token, user and password, certificate) built from `user` and `token`, plus the tool's own `extra` lines; `lines` replaces it for tools with other options (node-protect). Rules verified on System.CommandLine 2.0.9 | Every .NET CLI tool (not vdi), on the Connection page |
-| `CliTroubleshooting.astro` | The hidden `--debug` and `--log-level` options and what they log | Every .NET CLI tool (not vdi) |
+| `CliTroubleshooting.astro` | The hidden `--debug` and `--log-level` options and what they log | Every .NET CLI tool (not vdi); `api={false}` for SSH-only tools (node-protect) |
 | `Severity.astro` | Severity pill (Critical, Warning, Info, Ok; `Warning/Critical` gives two) with the same look as TerminalTable | Reference tables |
 | `Suite.astro` | The whole cv4pve suite, grouped as on corsinvest.it, with Starlight cards | Any site |
 | `CtaBand.astro` | Closing band: "Part of the cv4pve suite", get started, professional support, "official Proxmox partner" | Home pages |
@@ -167,7 +167,8 @@ The theme gives the look; these rules give the content the same quality on every
 - **Start from the problem.** The home page says *why* the tool exists — which Proxmox VE problem it
   solves — before listing features.
 - **Say how it runs.** cv4pve tools run outside the nodes and talk only to the Proxmox VE API: say so,
-  and link the privileges the API token needs.
+  and link the privileges the API token needs. A tool that connects over SSH instead (node-protect)
+  says that, with the account and the access it needs on the nodes.
 - **Verify every claim against the code.** Numbers, defaults, option names and behaviours come from the
   source, not from memory. No filler claims.
 - **Stay stock Starlight.** New needs go into this theme as settings or components, not as overrides in

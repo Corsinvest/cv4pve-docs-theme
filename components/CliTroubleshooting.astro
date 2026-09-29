@@ -10,8 +10,16 @@
  * Verified against cv4pve-api-dotnet v9.2.x: CommandOptionExtension.cs (hidden, recursive options;
  * --log-level overrides --debug), ConsoleHelper.cs (exception details on error), PveClientBase.cs
  * (Debug logs each API call, sensitive parameters masked; Trace logs the full responses).
+ * `api={false}` is for tools that reach the nodes over SSH instead of the API (node-protect): the
+ * API sentences are replaced by what those tools log.
  * Plain HTML only, so Starlight's content styles apply.
  */
+interface Props {
+  /** The tool talks to the Proxmox VE API (default). `false` for SSH-only tools such as node-protect. */
+  api?: boolean;
+}
+
+const { api = true } = Astro.props;
 ---
 
 <p>
@@ -27,18 +35,32 @@
     <tr>
       <td><code>--debug</code></td>
       <td>
-        On an error, prints the exception type and stack trace after the <code>ERROR:</code> line. Also
-        logs each Proxmox VE API call: method, URL, status and duration, and the parameters of calls that
-        change data — passwords, tokens and tickets are masked.
+        On an error, prints the exception type and stack trace after the <code>ERROR:</code> line.
+        {
+          api ? (
+            <>
+              Also logs each Proxmox VE API call: method, URL, status and duration, and the parameters of
+              calls that change data — passwords, tokens and tickets are masked.
+            </>
+          ) : (
+            <>Also logs the command run on each node over SSH and how long it took.</>
+          )
+        }
       </td>
     </tr>
     <tr>
       <td><code>--log-level</code></td>
       <td>
         <code>Trace</code>, <code>Debug</code>, <code>Information</code>, <code>Warning</code> (default),
-        <code>Error</code> or <code>Critical</code>; overrides <code>--debug</code>. <code>Trace</code> also
-        logs the full API responses — they contain details of your cluster, so review the output before
-        sharing it.
+        <code>Error</code> or <code>Critical</code>; overrides <code>--debug</code>.
+        {
+          api && (
+            <>
+              <code>Trace</code> also logs the full API responses — they contain details of your cluster, so
+              review the output before sharing it.
+            </>
+          )
+        }
       </td>
     </tr>
   </tbody>
