@@ -176,9 +176,12 @@ The theme gives the look; these rules give the content the same quality on every
 
 ## Publishing a site
 
-The site builds with `withastro/action` and deploys with `actions/deploy-pages` on every push to
-`master` that touches `docs/`. GitHub Pages must use **GitHub Actions** as source (*Settings → Pages*).
-See [cv4pve-diag/.github/workflows/docs.yml](https://github.com/Corsinvest/cv4pve-diag/blob/master/.github/workflows/docs.yml).
+The site's `docs.yml` calls the shared workflow
+[`cv4pve-tools-docs.yml`](https://github.com/Corsinvest/.github/blob/main/.github/workflows/cv4pve-tools-docs.yml),
+which builds it with `withastro/action` and deploys it with `actions/deploy-pages` on every push to
+`master` that touches `docs/`. It takes two optional inputs: `path`, the folder of the site (default
+`docs`), and `pre-build`, a command run before the build. GitHub Pages must use **GitHub Actions** as
+source (*Settings → Pages*).
 
 ---
 
