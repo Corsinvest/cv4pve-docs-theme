@@ -32,9 +32,11 @@ interface Props {
   lines?: string[];
   /** File name in the example. */
   file?: string;
+  /** Put `@file` after `run` in the example: for tools whose options belong to a subcommand (cv4pve-cli). */
+  after?: boolean;
 }
 
-const { tool, run, user = 'user@pve', token = 'token', extra = [], lines, file = 'production.rsp' } = Astro.props;
+const { tool, run, user = 'user@pve', token = 'token', extra = [], lines, file = 'production.rsp', after = false } = Astro.props;
 
 const connection = [
   '# Any node of the cluster; list several so the tool runs while one is down',
@@ -63,10 +65,13 @@ const DOCS_URL = 'https://learn.microsoft.com/dotnet/standard/commandline/syntax
 </p>
 
 <Code code={content.join('\n')} lang="text" title={file} />
-<Code code={`${tool} @${file} ${run}`} lang="bash" />
+<Code code={after ? `${tool} ${run} @${file}` : `${tool} @${file} ${run}`} lang="bash" />
 
 <ul>
-  <li><code>@{file}</code> can go anywhere on the line, with other options before or after it.</li>
+  <li>
+    <code>@{file}</code> is replaced by its content where it stands, so put it where those options are
+    valid: with the other options of the command, before or after them.
+  </li>
   <li>
     Options are separated by spaces, one or more per line: <code>--option=value</code> or
     <code>--option value</code>. A value with spaces goes in quotes: <code>--settings-file="C:\My Files\settings.json"</code>.
