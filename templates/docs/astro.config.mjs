@@ -25,7 +25,7 @@ export default defineConfig({
       ],
       lastUpdated: true,
       sidebar: [
-        { label: 'Start here', items: ['getting-started', 'permissions', 'troubleshooting'] },
+        { label: 'Start here', items: ['getting-started', 'permissions', 'connection', 'troubleshooting'] },
         // TODO: the tool's own reference pages.
       ],
     }),

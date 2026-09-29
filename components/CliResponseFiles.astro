@@ -1,0 +1,89 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * Response files: options kept in a file and passed with @file. A System.CommandLine feature, so it
+ * works the same in every cv4pve .NET CLI tool.
+ *
+ * The example file is built here from the login options shared by the tools on
+ * Corsinvest.ProxmoxVE.Api.Console (the same as CliConnection), so every site shows the same block;
+ * the site adds its own lines with `extra`. A tool with other connection options (node-protect, SSH)
+ * passes the whole file with `lines`.
+ *
+ * Rules verified on System.CommandLine 2.0.9 (the version the tools ship with), not copied from the
+ * Microsoft page: there a # anywhere starts a comment, in 2.0.9 only a line starting with # is one.
+ * Built from Starlight's Code component, so it follows the site theme.
+ */
+import { Code } from '@astrojs/starlight/components';
+
+interface Props {
+  /** Tool binary, e.g. `cv4pve-report`. */
+  tool: string;
+  /** Command and options after `@file` in the example, e.g. `export --format Html`. */
+  run: string;
+  /** Example user, e.g. `report@pve`. */
+  user?: string;
+  /** Example API token ID, e.g. `report`. */
+  token?: string;
+  /** Tool-specific lines appended to the shared connection block. */
+  extra?: string[];
+  /** The whole example file, replacing the shared block — for tools with other connection options. */
+  lines?: string[];
+  /** File name in the example. */
+  file?: string;
+}
+
+const { tool, run, user = 'user@pve', token = 'token', extra = [], lines, file = 'production.rsp' } = Astro.props;
+
+const connection = [
+  '# Any node of the cluster; list several so the tool runs while one is down',
+  '--host=pve01,pve02,pve03',
+  '',
+  '# API token (recommended)',
+  `--api-token=${user}!${token}=<uuid>`,
+  '',
+  '# ...or user and password, for accounts without two-factor authentication',
+  `# --username=${user}`,
+  '# --password=<password>',
+  '# ...or the password in a file: asked on a first, interactive run, then read from it',
+  '# --password=file:/etc/cv4pve/password',
+  '',
+  '# Only if the nodes have a certificate from a trusted CA',
+  '# --validate-certificate',
+];
+const content = lines ?? [...connection, ...(extra.length ? ['', ...extra] : [])];
+const DOCS_URL = 'https://learn.microsoft.com/dotnet/standard/commandline/syntax#response-files';
+---
+
+<p>
+  Put the options you repeat — the connection above all — in a file and pass it with <code>@</code>. The
+  file is read as if its content were typed on the command line, so no shell quoting is needed: an API
+  token with <code>!</code> goes in as it is.
+</p>
+
+<Code code={content.join('\n')} lang="text" title={file} />
+<Code code={`${tool} @${file} ${run}`} lang="bash" />
+
+<ul>
+  <li><code>@{file}</code> can go anywhere on the line, with other options before or after it.</li>
+  <li>
+    Options are separated by spaces, one or more per line: <code>--option=value</code> or
+    <code>--option value</code>. A value with spaces goes in quotes: <code>--settings-file="C:\My Files\settings.json"</code>.
+  </li>
+  <li>
+    A line that starts with <code>#</code> is a comment — handy to keep alternatives ready, as above. A
+    <code>#</code> after an option is not: it is read as an argument and the command fails.
+  </li>
+  <li>
+    <code>@other.rsp</code> inside a file includes another file — for example one with the connection,
+    shared by files with different options.
+  </li>
+</ul>
+
+<p>
+  A file with a password or an API token is as sensitive as the password itself: keep it readable only by
+  the account that runs the tool (<code>chmod 600</code> on Linux). Response files are a feature of the
+  <a href={DOCS_URL} target="_blank" rel="noopener noreferrer">System.CommandLine</a> library the tools are
+  built on.
+</p>

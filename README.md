@@ -50,9 +50,10 @@ styles, and touch no Starlight internals:
 | Component | What it shows | For |
 |---|---|---|
 | `CliInstall.astro` | Installation table: release zips, deb, rpm, AUR, WinGet, Homebrew, macOS pkg — names derived from the repository, as the shared release workflow publishes them | Tools released with `cv4pve-tools-publish.yml`; pass `channels` / `winget` for the exceptions |
-| `CliConnection.astro` | Connection options: `--host` (several nodes), `--api-token`, `--username`/`--password`, `--validate-certificate`, `@` parameter files | Tools built on `Corsinvest.ProxmoxVE.Api.Console` login options: diag, report, autosnap, pepper, botgram, metrics-exporter |
+| `CliConnection.astro` | Connection options: `--host` (several nodes), `--api-token`, `--username`/`--password`, `--validate-certificate` | Tools built on `Corsinvest.ProxmoxVE.Api.Console` login options: diag, report, autosnap, pepper, botgram, metrics-exporter |
 | `TerminalTable.astro` | A tool's tabular output as the terminal shows it: command on top, monospace table, coloured severity badges; dark in the dark theme, light in the light one | Any tool printing tables (they share `TableGenerator`) |
 | `FeatureGrid.astro` | Numbered feature cards, each linking to the page that explains it | Home pages |
+| `CliResponseFiles.astro` | Response files: options in a file passed with `@file`. The example file holds the shared connection options (host, token, user and password, certificate) built from `user` and `token`, plus the tool's own `extra` lines; `lines` replaces it for tools with other options (node-protect). Rules verified on System.CommandLine 2.0.9 | Every .NET CLI tool (not vdi), on the Connection page |
 | `CliTroubleshooting.astro` | The hidden `--debug` and `--log-level` options and what they log | Every .NET CLI tool (not vdi) |
 | `Severity.astro` | Severity pill (Critical, Warning, Info, Ok; `Warning/Critical` gives two) with the same look as TerminalTable | Reference tables |
 | `Suite.astro` | The whole cv4pve suite, grouped as on corsinvest.it, with Starlight cards | Any site |
@@ -153,7 +154,7 @@ site keeps its own copy of the media-kit file (the horizontal lockup, never reco
 
 [`templates/`](templates/) mirrors a tool repository: copy `templates/docs/` to the tool's `docs/`
 folder and `templates/.github/workflows/docs.yml` to its workflows, replace `cv4pve-TOOL` and fill every
-`TODO`. It gives the standard pages — home, Getting started, Permissions — already built from the
+`TODO`. It gives the standard pages — home, Getting started, Connection, Permissions, Troubleshooting — already built from the
 components above, plus `package.json`, `astro.config.mjs` and the deploy workflow. Add the tool's
 `public/icon.svg` / `icon-dark.svg` and `src/assets/proxmox-logo.svg` (Proxmox media kit).
 
