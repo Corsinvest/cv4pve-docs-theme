@@ -22,13 +22,15 @@ interface Props {
   tool: string;
   /** What the tool keeps in `~/.cv4pve/` and cannot run without, e.g. for cv4pve-cli. Unset: nothing. */
   config?: string;
+  /** Other hosts the tool may reach, each with when it does, e.g. the NVD for cv4pve-diag --full. */
+  hosts?: { host: string; when: string }[];
 }
 
-const { tool, config } = Astro.props;
+const { tool, config, hosts = [] } = Astro.props;
 
 const claude = {
   sandbox: {
-    network: { allowedDomains: ['pve01.example.com:8006'] },
+    network: { allowedDomains: ['pve01.example.com:8006', ...hosts.map((h) => `${h.host}:443`)] },
     ...(config ? { filesystem: { allowWrite: ['~/.cv4pve/'] } } : {}),
   },
 };
@@ -40,6 +42,8 @@ const codex = `prefix_rule(pattern=["${tool}"], decision="allow")`;
 Once a day it also asks <code>api.github.com</code> for a newer release: refusing that host only hides the notice.</p>
 
 {config && <p>It also needs to write in <code>~/.cv4pve/</code>: {config}.</p>}
+
+{hosts.map((h) => <p>{h.when}, it also connects to <code>{h.host}</code> over HTTPS.</p>)}
 
 <p>
   Claude Code sandboxes commands on macOS, Linux and WSL2; on native Windows it has none, and the assistant runs
