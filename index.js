@@ -117,7 +117,7 @@ export default function corsinvestTheme(options) {
 
 /**
  * Head entries for the product icon: a dark-mode favicon, and the icon before the product name in
- * the header — plain CSS on Starlight's site title, no component override.
+ * the header: plain CSS on Starlight's site title, no component override.
  * @param {string} base Site base path without trailing slash.
  * @param {{ light: string, dark?: string }} icon
  */

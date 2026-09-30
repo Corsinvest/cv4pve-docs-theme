@@ -29,7 +29,7 @@ interface Props {
   token?: string;
   /** Tool-specific lines appended to the shared connection block. */
   extra?: string[];
-  /** The whole example file, replacing the shared block — for tools with other connection options. */
+  /** The whole example file, replacing the shared block, for tools with other connection options. */
   lines?: string[];
   /** File name in the example. */
   file?: string;
@@ -60,7 +60,7 @@ const DOCS_URL = 'https://learn.microsoft.com/dotnet/standard/commandline/syntax
 ---
 
 <p>
-  Put the options you repeat — the connection above all — in a file and pass it with <code>@</code>. The
+  Put the options you repeat (the connection above all) in a file and pass it with <code>@</code>. The
   file is read as if its content were typed on the command line, so no shell quoting is needed: an API
   token with <code>!</code> goes in as it is.
 </p>
@@ -78,11 +78,11 @@ const DOCS_URL = 'https://learn.microsoft.com/dotnet/standard/commandline/syntax
     <code>--option value</code>. A value with spaces goes in quotes: <code>--settings-file="C:\My Files\settings.json"</code>.
   </li>
   <li>
-    A line that starts with <code>#</code> is a comment — handy to keep alternatives ready, as above. A
+    A line that starts with <code>#</code> is a comment: handy to keep alternatives ready, as above. A
     <code>#</code> after an option is not: it is read as an argument and the command fails.
   </li>
   <li>
-    <code>@other.rsp</code> inside a file includes another file — for example one with the connection,
+    <code>@other.rsp</code> inside a file includes another file, for example one with the connection,
     shared by files with different options.
   </li>
 </ul>

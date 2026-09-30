@@ -39,7 +39,7 @@ const LABELS = { linux: 'Linux', macos: 'macOS', windows: 'Windows', docker: 'Do
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 /**
- * @param {string} repo Repository name, e.g. `cv4pve-diag` — also the binary and package name.
+ * @param {string} repo Repository name, e.g. `cv4pve-diag`, also the binary and package name.
  * @param {InstallPanelOptions} options
  */
 export function installPanelHtml(repo, options) {
@@ -60,7 +60,7 @@ export function installPanelHtml(repo, options) {
       return {
         id, label: LABELS.linux, icon: 'linux',
         lines: [
-          '# install (x64 — arm64 on the Releases page)',
+          '# install (x64; arm64 on the Releases page)',
           `wget https://github.com/Corsinvest/\\\n${repo}/releases/latest/download/\\\n${repo}-linux-x64.zip`,
           `unzip ${repo}-linux-x64.zip`,
           `chmod +x ${repo}`,

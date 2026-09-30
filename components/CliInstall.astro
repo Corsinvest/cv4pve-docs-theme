@@ -16,7 +16,7 @@
 type Channel = 'linux' | 'winget' | 'windows' | 'brew' | 'pkg' | 'macos' | 'deb' | 'rpm' | 'aur';
 
 interface Props {
-  /** Repository name, e.g. `cv4pve-diag` — also the binary and package name. */
+  /** Repository name, e.g. `cv4pve-diag`, also the binary and package name. */
   repo: string;
   /** WinGet id. Default `Corsinvest.cv4pve.<name>`. */
   winget?: string;
@@ -37,7 +37,7 @@ const rows: Record<Channel, { platform: string; how: string }> = {
   rpm: { platform: 'RHEL / Fedora', how: `<code>sudo rpm -i ${repo}-VERSION-ARCH.rpm</code> (x86_64, aarch64, armv7hl)` },
   aur: { platform: 'Arch Linux', how: `<code>yay -S ${repo}</code>` },
   winget: { platform: 'Windows (WinGet)', how: `<code>winget install ${winget}</code>` },
-  windows: { platform: 'Windows (manual)', how: `<code>${repo}.exe-win-x64.zip</code> — also x86 and arm64` },
+  windows: { platform: 'Windows (manual)', how: `<code>${repo}.exe-win-x64.zip</code>, also x86 and arm64` },
   brew: { platform: 'macOS (Homebrew)', how: `<code>brew install corsinvest/tap/${repo}</code>` },
   pkg: { platform: 'macOS (installer)', how: `<code>${repo}-VERSION-arm64.pkg</code> (Apple silicon) or <code>-x86_64.pkg</code> (Intel)` },
   macos: { platform: 'macOS (manual)', how: `<code>${repo}-osx-arm64.zip</code> or <code>${repo}-osx-x64.zip</code>` },
