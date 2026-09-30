@@ -49,8 +49,8 @@
   --sl-font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
 }
 
-/* Severity colours, shared by the whole site: Starlight derives its red/orange/blue/green —
-   badges (danger, caution, note, success) and asides — from these hues, with the right lightness
+/* Severity colours, shared by the whole site: Starlight derives its red/orange/blue/green,
+   badges (danger, caution, note, success) and asides, from these hues, with the right lightness
    for each theme. TerminalTable uses the same hues. Critical 0, warning 40, info 211 (close to the
    Corsinvest blue), ok 140. */
 :root {
@@ -62,7 +62,7 @@
 
 /* Dark: a navy ground instead of neutral black.
    Starlight declares its palette inside @layer starlight.base, and unlayered rules beat
-   layered ones whatever their specificity — a bare :root here would repaint light mode
+   layered ones whatever their specificity; a bare :root here would repaint light mode
    too, so the dark values must be scoped to the dark theme explicitly. */
 :root:not([data-theme='light']) {
   --sl-color-accent-low: #102a42;
@@ -152,7 +152,7 @@ h1,
   }
 }
 
-/* Home hero: the grid and glow backdrop of corsinvest.it. Pure decoration — if
+/* Home hero: the grid and glow backdrop of corsinvest.it. Pure decoration: if
    Starlight renames the class, the hero simply loses the backdrop. */
 .hero {
   position: relative;

@@ -40,7 +40,7 @@ const { api = true } = Astro.props;
           api ? (
             <>
               Also logs each Proxmox VE API call: method, URL, status and duration, and the parameters of
-              calls that change data — passwords, tokens and tickets are masked.
+              calls that change data; passwords, tokens and tickets are masked.
             </>
           ) : (
             <>Also logs the command run on each node over SSH and how long it took.</>
@@ -56,7 +56,7 @@ const { api = true } = Astro.props;
         {
           api && (
             <>
-              <code>Trace</code> also logs the full API responses — they contain details of your cluster, so
+              <code>Trace</code> also logs the full API responses; they contain details of your cluster, so
               review the output before sharing it.
             </>
           )

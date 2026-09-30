@@ -15,9 +15,9 @@ type Tone = 'critical' | 'warning' | 'info' | 'ok';
 interface Column {
   label: string;
   /**
-   * `badge` — severity pill, tone from the value (Critical/Warning/Info/Ok) or `tones`;
-   * `code` — identifier in blue; `muted` — secondary identifier; `accent` — highlighted value;
-   * `wrap` — free text that wraps. Default: plain.
+   * `badge`: severity pill, tone from the value (Critical/Warning/Info/Ok) or `tones`;
+   * `code`: identifier in blue; `muted`: secondary identifier; `accent`: highlighted value;
+   * `wrap`: free text that wraps. Default: plain.
    */
   style?: 'badge' | 'code' | 'muted' | 'accent' | 'wrap';
 }
