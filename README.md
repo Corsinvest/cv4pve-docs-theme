@@ -55,6 +55,8 @@ styles, and touch no Starlight internals:
 | `FeatureGrid.astro` | Numbered feature cards, each linking to the page that explains it | Home pages |
 | `CliResponseFiles.astro` | Options in a file passed with `@file` (System.CommandLine response files), for the section *Options in a file*. The example file holds the shared connection options (host, token, user and password, certificate) built from `user` and `token`, plus the tool's own `extra` lines; `lines` replaces it for tools with other options (node-protect); `after` puts `@file` after the command, for options that belong to a subcommand (cv4pve-cli). Rules verified on System.CommandLine 2.0.9 | Every .NET CLI tool (not vdi), on the Connection page |
 | `CliTroubleshooting.astro` | The hidden `--debug` and `--log-level` options and what they log | Every .NET CLI tool (not vdi); `api={false}` for SSH-only tools (node-protect) |
+| `AiSkill.astro` | The tool's skill for AI assistants (`skills/<tool>/SKILL.md`): what it is, what it tells the assistant (the tool's list, in the slot), install with `npx skills add` or `curl` | Page *AI assistants* of any tool that ships a skill |
+| `AiSandbox.astro` | What the tool needs from the sandbox of an AI assistant (port 8006, output files, the daily release check), and the settings for Claude Code and Codex in a closed `<details>`; `config` for tools that cannot run without `~/.cv4pve/` (cv4pve-cli) | Page *AI assistants* of the tools on the Proxmox VE API |
 | `Severity.astro` | Severity pill (Critical, Warning, Info, Ok; `Warning/Critical` gives two) with the same look as TerminalTable | Reference tables |
 | `Suite.astro` | The whole cv4pve suite, grouped as on corsinvest.it, with Starlight cards | Any site |
 | `CtaBand.astro` | Closing band: "Part of the cv4pve suite", get started, professional support, "official Proxmox partner" | Home pages |
@@ -135,10 +137,18 @@ corsinvestTheme({
 
 ```mdx
 import CliConnection from '@corsinvest/cv4pve-docs-theme/components/CliConnection.astro';
+import AiSkill from '@corsinvest/cv4pve-docs-theme/components/AiSkill.astro';
 import CtaBand from '@corsinvest/cv4pve-docs-theme/components/CtaBand.astro';
 import proxmoxLogo from '../../assets/proxmox-logo.svg';
 
 <CliConnection user="report@pve" />
+
+<AiSkill tool="cv4pve-report">
+
+- read `issues.json` first;
+- …
+
+</AiSkill>
 
 
 <CtaBand title="Run your first report" text="…" proxmoxLogo={proxmoxLogo} />

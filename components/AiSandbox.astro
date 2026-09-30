@@ -1,0 +1,77 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * What a cv4pve tool built on the Proxmox VE API needs from the sandbox of an AI assistant, and
+ * the settings for Claude Code and Codex, for the page "AI assistants".
+ *
+ * Verified against cv4pve-api-dotnet v9.2.x: UpdateHelper.cs (daily release check on api.github.com,
+ * cached in ~/.cv4pve/update-check.json, every failure ignored). Claude Code keys verified on
+ * code.claude.com/docs/en/settings-reference (allowedDomains takes IP literals and `:port`,
+ * allowMachLookup is an array of service names) and sandboxing (macOS, Linux and WSL2 only; a
+ * `WebFetch(domain:…)` allow rule also pre-allows the host). Codex: `decision = "allow"` runs the
+ * command outside the sandbox without prompting (learn.chatgpt.com/docs/agent-configuration/rules).
+ * The trustd lookup was reported for cv4pve-cli (issue #10), which uses the same API library.
+ * No headings here: Starlight builds "On this page" from the page's own headings only.
+ */
+import { Code } from '@astrojs/starlight/components';
+
+interface Props {
+  /** Tool binary, e.g. `cv4pve-report`. */
+  tool: string;
+  /** What the tool keeps in `~/.cv4pve/` and cannot run without, e.g. for cv4pve-cli. Unset: nothing. */
+  config?: string;
+}
+
+const { tool, config } = Astro.props;
+
+const claude = {
+  sandbox: {
+    network: { allowedDomains: ['pve01.example.com:8006'] },
+    ...(config ? { filesystem: { allowWrite: ['~/.cv4pve/'] } } : {}),
+  },
+};
+const trustd = { sandbox: { network: { allowMachLookup: ['com.apple.trustd*'] } } };
+const codex = `prefix_rule(pattern=["${tool}"], decision="allow")`;
+---
+
+<p>{tool} needs to reach the nodes on port 8006, or the port in <code>--host</code>, and to write its output files.
+Once a day it also asks <code>api.github.com</code> for a newer release: refusing that host only hides the notice.</p>
+
+{config && <p>It also needs to write in <code>~/.cv4pve/</code>: {config}.</p>}
+
+<p>
+  Claude Code sandboxes commands on macOS, Linux and WSL2; on native Windows it has none, and the assistant runs
+  commands with your own permissions. A Codex rule that allows {tool} runs it outside the sandbox. Either way the
+  token is the only limit.
+</p>
+
+<details>
+  <summary>Settings for Claude Code and Codex</summary>
+
+  <p>
+    <strong>Claude Code</strong> asks the first time a command reaches a new host. To allow the node in advance:
+  </p>
+
+  <Code code={JSON.stringify(claude, null, 2)} lang="json" title=".claude/settings.json" />
+
+  <p>
+    On macOS, with the self-signed certificate of the nodes, a cv4pve-cli user found in
+    <a href="https://github.com/Corsinvest/cv4pve-cli/issues/10">issue #10</a> that the sandbox blocked every HTTPS
+    connection, even with certificate validation off: .NET still asks the macOS trust service. {tool} connects
+    with the same library, so the same fix may be needed:
+  </p>
+
+  <Code code={JSON.stringify(trustd, null, 2)} lang="json" title=".claude/settings.json" />
+
+  <p><strong>Codex</strong>, in the same issue, needed only a rule that allows the command:</p>
+
+  <Code code={codex} lang="text" title="~/.codex/rules/default.rules" />
+
+  <p>
+    Check these settings against the documentation of your assistant —
+    <a href="https://code.claude.com/docs/en/sandboxing">Claude Code</a>,
+    <a href="https://learn.chatgpt.com/docs/agent-configuration/rules">Codex</a>.
+  </p>
+</details>
