@@ -44,8 +44,3 @@ const manual = [`mkdir -p .claude/skills/${tool}`, `curl -fL -o .claude/skills/$
 </p>
 
 <Code code={manual} lang="bash" />
-
-<p>
-  The skill follows the <code>master</code> branch, which can be ahead of the release you run: it tells the
-  assistant to check <code>{tool} --help</code> when an option is refused.
-</p>
