@@ -170,6 +170,11 @@ h1,
   mask-image: linear-gradient(to bottom, black 55%, transparent);
   pointer-events: none;
 }
+/* The backdrop is wider than the window: cut it at the edges of the page, or the home page gets a
+   horizontal scrollbar. */
+main:has(.hero) {
+  overflow-x: clip;
+}
 
 /* Hero side panel (hero.image.html): install and run, in a terminal frame. */
 .cv-hero-term {
