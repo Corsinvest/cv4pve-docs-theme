@@ -7,7 +7,7 @@ However, includes several third-party Open-Source libraries and fonts, which are
 ## Fonts directly included
 
 [Barlow and Barlow Condensed](https://github.com/jpt/barlow) (`fonts/`)
-License: SIL Open Font License 1.1 — [fonts/OFL.txt](fonts/OFL.txt)
+License: SIL Open Font License 1.1, [fonts/OFL.txt](fonts/OFL.txt)
 
 ## Artwork directly included
 
