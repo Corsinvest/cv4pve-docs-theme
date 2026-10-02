@@ -34,5 +34,5 @@ use your own brand.
 Proxmox and the Proxmox logo are trademarks of Proxmox Server Solutions GmbH.
 This package does not include the Proxmox logo.
 
-The Barlow fonts in `fonts/` are licensed under the SIL Open Font License 1.1 —
+The Barlow fonts in `fonts/` are licensed under the SIL Open Font License 1.1:
 see [fonts/OFL.txt](fonts/OFL.txt).
