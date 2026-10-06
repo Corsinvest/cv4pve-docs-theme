@@ -105,26 +105,23 @@ h1,
   font-weight: 600;
 }
 
-/* Header: the Corsinvest wordmark, a hairline, then the tool name. */
+/* Header: the product icon (drawn by the theme's `icon` option) and the tool name. A site that
+   sets its own logo gets it at the same height. */
 .site-title {
   gap: 0.75rem;
 }
 .site-title img {
-  height: 24px; /* as the corsinvest-web header */
+  height: 24px;
   width: auto;
 }
-.site-title img + span {
-  padding-left: 0.75rem;
-  border-left: 1px solid var(--sl-color-gray-5);
+.site-title > span {
   font-size: 1.35rem;
   font-weight: 700;
   line-height: 1;
 }
 
-/* Header: "Part of the cv4pve suite" written beside the suite icon, the only way to show text
-   in Starlight's social links without overriding the component. Icon only on narrow headers. */
+/* Header: the link to the cv4pve suite, beside GitHub. */
 .social-icons a[href="https://www.corsinvest.it/en/cv4pve/"] {
-  gap: 0.4rem;
   align-items: center;
   text-decoration: none;
 }
@@ -142,14 +139,13 @@ h1,
 :root[data-theme='dark'] .social-icons a[href="https://www.corsinvest.it/en/cv4pve/"]::before {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%232a6fae'/%3E%3Cpath fill='%23fff' transform='translate%28100 100%29 scale%280.6%29 translate%28-93 -100%29' d='M78 22Q64 22 60 38L24 162Q20 178 36 178L110 178Q124 178 128 162L138 124L110 124L102 156L60 156L90 44L132 44L124 76L152 76L162 38Q166 22 152 22Z'/%3E%3C/svg%3E");
 }
-@media (min-width: 72rem) {
-  .social-icons a[href="https://www.corsinvest.it/en/cv4pve/"]::after {
-    content: 'Part of the cv4pve suite';
-    font-family: var(--cv-font-display);
-    font-size: var(--sl-text-sm);
-    font-weight: 600;
-    white-space: nowrap;
-  }
+/* The logo is a picture, so the colour change Starlight gives to the other icons on hover does
+   not reach it: it gets lighter instead. */
+.social-icons a[href="https://www.corsinvest.it/en/cv4pve/"]::before {
+  transition: filter 0.15s;
+}
+.social-icons a[href="https://www.corsinvest.it/en/cv4pve/"]:hover::before {
+  filter: brightness(1.35);
 }
 
 /* Home hero: the grid and glow backdrop of corsinvest.it. Pure decoration: if
@@ -176,7 +172,90 @@ main:has(.hero) {
   overflow-x: clip;
 }
 
-/* Hero side panel (hero.image.html): install and run, in a terminal frame. */
+/* Narrow screens, where the hero is one column: the side panel (hero.image.html) goes after the
+   title and the buttons, and takes the width of the text. Starlight treats it as the hero image,
+   which it shows first and small: right for a logo, wrong for a panel that only makes sense once
+   the title has said what the product is. */
+@media (max-width: 49.99rem) {
+  .hero > .hero-html {
+    order: 2;
+    width: min(100%, 28rem);
+  }
+}
+
+/* Hero side panel, steps (steps-panel.js): numbered steps from nothing to a first result. */
+.cv-steps {
+  width: 100%;
+  padding: 1.5rem 1.75rem;
+  border: 1px solid var(--cv-card-border);
+  border-radius: 8px;
+  background: var(--cv-card-bg);
+  text-align: left;
+}
+.cv-steps-title {
+  margin: 0 0 1.1rem;
+  color: var(--sl-color-white);
+  font-family: var(--cv-font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.cv-steps-title strong {
+  color: var(--sl-color-text-accent);
+}
+.cv-steps ol {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: cv-step;
+}
+.cv-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--sl-color-gray-2);
+  counter-increment: cv-step;
+}
+/* The numbered dot. */
+.cv-steps li::before {
+  content: counter(cv-step);
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--cv-blue-bright);
+  color: #fff;
+  font-size: var(--sl-text-sm);
+  font-weight: 700;
+}
+.cv-steps code {
+  font-size: 0.85em;
+}
+/* A step that links to the page explaining it: same text, underlined. */
+.cv-steps li a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.cv-steps li a:hover {
+  color: var(--sl-color-white);
+}
+/* The link under the steps. */
+.cv-steps > a {
+  color: var(--sl-color-text-accent);
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+.cv-steps > a:hover {
+  text-decoration: underline;
+}
+
+/* Hero side panel, install and run (install-panel.js), in a terminal frame. */
 .cv-hero-term {
   width: 100%;
   border: 1px solid var(--cv-card-border);
@@ -286,4 +365,60 @@ main:has(.hero) {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+}
+
+/* Link to cv4pve-admin (admin-link.js): the button the theme adds to the hero of the home page.
+   The icon comes before the text. */
+.sl-link-button.cv-admin-link svg {
+  order: -1;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+/* Always on a row of its own, under the buttons about this tool: left to wrap by itself it ends up
+   beside them on one site and under them on another, depending on the width of the window and on
+   the length of the labels. An empty item as wide as the row, ordered between the other buttons and
+   this one, forces the line break; its negative margin takes back the second row gap it would add
+   (the gap of Starlight's hero actions is 1rem). Only where the button exists. */
+.hero .actions:has(.cv-admin-link)::after {
+  content: '';
+  flex-basis: 100%;
+  height: 0;
+  margin-block-start: -1rem;
+  order: 1;
+}
+.hero .actions .cv-admin-link {
+  order: 2;
+}
+/* Its own background: it leads to another product, so it must not look like the buttons about this
+   tool (accent fill for the first, a border alone for the others). The opposite of the page: a white
+   pill on the dark theme, a deep blue one on the light theme. The icon keeps the colours that read
+   on that background. */
+.sl-link-button.cv-admin-link {
+  --cv-admin-icon-1: #4ab4ec;
+  --cv-admin-icon-2: #2f92dc;
+  --cv-admin-icon-3: #2565b0;
+  --cv-admin-icon-4: #174384;
+  border-color: #fff;
+  background: #fff;
+  color: var(--cv-blue-deep);
+  font-weight: 600;
+}
+.sl-link-button.cv-admin-link:hover {
+  border-color: #dbe9f7;
+  background: #dbe9f7;
+  color: var(--cv-blue-deep);
+}
+:root[data-theme='light'] .sl-link-button.cv-admin-link {
+  --cv-admin-icon-1: #6cc6f5;
+  --cv-admin-icon-2: #45a6ea;
+  --cv-admin-icon-3: #3b82d0;
+  --cv-admin-icon-4: #2a62ad;
+  border-color: var(--cv-blue-deep);
+  background: var(--cv-blue-deep);
+  color: #fff;
+}
+:root[data-theme='light'] .sl-link-button.cv-admin-link:hover {
+  border-color: var(--cv-blue-bright);
+  background: var(--cv-blue-bright);
+  color: #fff;
 }

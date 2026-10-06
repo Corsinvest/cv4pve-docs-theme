@@ -3,27 +3,32 @@ title: Getting started
 description: Install cv4pve-TOOL, connect it to a Proxmox VE cluster and run it.
 ---
 
-import CliInstall from '@corsinvest/cv4pve-docs-theme/components/CliInstall.astro';
+import CliGettingStarted from '@corsinvest/cv4pve-docs-theme/components/CliGettingStarted.astro';
 
 cv4pve-TOOL runs **outside the cluster** (on your workstation, a management VM or a scheduled job)
 and talks only to the Proxmox VE REST API on port 8006. Nothing is installed on the nodes.
 
-## Installation
-
-{/* Pass winget="…" or channels={[…]} when the tool's packaging/config differs (see the theme README). */}
-<CliInstall repo="cv4pve-TOOL" />
-
 ## First run
 
-Create a dedicated user and API token first: see [Permissions](/cv4pve-TOOL/permissions/). Then point
-the tool at any node:
+{/* The steps of the hero panel (steps in astro.config.mjs): keep the same order and words there.
+    Pass winget="…" or channels={[…]} when the tool's packaging/config differs (see the theme README). */}
 
-```bash
-cv4pve-TOOL --host=pve1.local --api-token='user@pve!token=<uuid>' TODO-command
-```
+<CliGettingStarted
+  repo="cv4pve-TOOL"
+  run={['--host=pve01', "--api-token='user@pve!token=<uuid>'", 'TODO-command']}
+  result="TODO: read the result"
+>
+
+<Fragment slot="notes">
 
 Several nodes, username and password, certificates and keeping the options in a file: see
 [Connection](/cv4pve-TOOL/connection/).
+
+</Fragment>
+
+TODO: what the tool wrote or printed and where to read it.
+
+</CliGettingStarted>
 
 ## Run
 

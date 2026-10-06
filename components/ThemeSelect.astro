@@ -1,0 +1,109 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * Theme switch of the cv4pve sites: one icon button in place of Starlight's drop-down. The theme
+ * registers it as the `ThemeSelect` component of Starlight.
+ *
+ * A click goes to the next of three modes: auto (the system setting), light, dark. The icon shows
+ * the mode in use: a laptop for auto, the sun for light, the moon for dark. Same storage key as
+ * Starlight (`starlight-theme`, no value for auto), so its own script still sets the theme before
+ * the page is drawn.
+ */
+import { Icon } from '@astrojs/starlight/components';
+---
+
+<button type="button" class="cv-theme-toggle" aria-label="Theme" title="Theme">
+  <Icon name="laptop" class="cv-theme-icon-auto" />
+  <Icon name="sun" class="cv-theme-icon-light" />
+  <Icon name="moon" class="cv-theme-icon-dark" />
+</button>
+
+{/* Inlined: the icon of the stored mode is the one drawn first, with no flash of the auto one. */}
+<script is:inline>
+  (() => {
+    let mode = 'auto';
+    try {
+      const stored = localStorage.getItem('starlight-theme');
+      if (stored === 'light' || stored === 'dark') mode = stored;
+    } catch {}
+    document.documentElement.dataset.cvThemeMode = mode;
+  })();
+</script>
+
+<script>
+  type Mode = 'auto' | 'light' | 'dark';
+  const KEY = 'starlight-theme';
+  const ORDER: Mode[] = ['auto', 'light', 'dark'];
+  const NAMES: Record<Mode, string> = { auto: 'auto (system setting)', light: 'light', dark: 'dark' };
+
+  const system = () => (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  const mode = (): Mode => {
+    const value = document.documentElement.dataset.cvThemeMode;
+    return value === 'light' || value === 'dark' ? value : 'auto';
+  };
+
+  const apply = (next: Mode) => {
+    const root = document.documentElement;
+    root.dataset.cvThemeMode = next;
+    root.dataset.theme = next === 'auto' ? system() : next;
+    const after = ORDER[(ORDER.indexOf(next) + 1) % ORDER.length];
+    for (const button of document.querySelectorAll<HTMLElement>('.cv-theme-toggle')) {
+      const label = `Theme: ${NAMES[next]}. Switch to ${NAMES[after]}`;
+      button.setAttribute('aria-label', label);
+      button.title = label;
+    }
+  };
+
+  // One listener for every button of the page (header and mobile menu).
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest('.cv-theme-toggle')) return;
+    const next = ORDER[(ORDER.indexOf(mode()) + 1) % ORDER.length];
+    try {
+      // Auto has no stored value: without one Starlight follows the system setting.
+      if (next === 'auto') localStorage.removeItem(KEY);
+      else localStorage.setItem(KEY, next);
+    } catch {
+      // No storage (private mode, blocked site data): the switch still works for this page.
+    }
+    apply(next);
+  });
+
+  // In auto a change of the system setting is followed at once.
+  matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+    if (mode() === 'auto') apply('auto');
+  });
+
+  apply(mode());
+</script>
+
+<style>
+  .cv-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5em;
+    border: 0;
+    background: transparent;
+    color: var(--sl-color-text-accent);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .cv-theme-toggle:hover {
+    opacity: 0.66;
+  }
+  /* One icon at a time: the one of the mode in use (auto until the reader chooses). */
+  .cv-theme-icon-light,
+  .cv-theme-icon-dark {
+    display: none;
+  }
+  :global(:root[data-cv-theme-mode='light']) .cv-theme-icon-auto,
+  :global(:root[data-cv-theme-mode='dark']) .cv-theme-icon-auto {
+    display: none;
+  }
+  :global(:root[data-cv-theme-mode='light']) .cv-theme-icon-light,
+  :global(:root[data-cv-theme-mode='dark']) .cv-theme-icon-dark {
+    display: block;
+  }
+</style>

@@ -39,14 +39,16 @@ const LABELS = { linux: 'Linux', macos: 'macOS', windows: 'Windows', docker: 'Do
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 /**
+ * The install targets with the lines to show, the preset ones written out. Used by the hero panel
+ * below.
  * @param {string} repo Repository name, e.g. `cv4pve-diag`, also the binary and package name.
- * @param {InstallPanelOptions} options
+ * @param {Pick<InstallPanelOptions, 'targets' | 'run' | 'winget'>} options
+ * @returns {CustomTarget[]}
  */
-export function installPanelHtml(repo, options) {
+export function installTargets(repo, options) {
   const name = repo.replace(/^cv4pve-/, '');
   const run = options.run ?? [];
-  const targets = options.targets.map((t) => (typeof t === 'string' ? preset(t) : t));
-  if (targets.length === 0) return '';
+  return options.targets.map((t) => (typeof t === 'string' ? preset(t) : t));
 
   /** @param {PresetTarget} id */
   function preset(id) {
@@ -81,6 +83,15 @@ export function installPanelHtml(repo, options) {
       lines: ['# install', `winget install ${options.winget ?? `Corsinvest.cv4pve.${name}`}`, '', '# run against any node', runCmd(repo)],
     };
   }
+}
+
+/**
+ * @param {string} repo Repository name, e.g. `cv4pve-diag`, also the binary and package name.
+ * @param {InstallPanelOptions} options
+ */
+export function installPanelHtml(repo, options) {
+  const targets = installTargets(repo, options);
+  if (targets.length === 0) return '';
 
   const prompt = (/** @type {string} */ id) => (id === 'windows' ? 'PS&gt;' : '$');
   const block = (/** @type {CustomTarget} */ t, /** @type {number} */ i) => {

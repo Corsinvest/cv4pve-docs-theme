@@ -1,0 +1,70 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * The numbered steps of a Getting started page, from nothing to a first result: install the tool,
+ * create an API token, run it, read the result. The first three are the same for every cv4pve CLI
+ * tool that connects with the shared login options (see CliConnection); the last one is the tool's
+ * own and comes from the page.
+ * They are the steps the home hero lists (the `steps` option of the theme): keep the same order and
+ * the same words there, so the "Step by step" link lands on what it promised.
+ *
+ * Slots: the default one is the content of the last step; `token` replaces the text of the token
+ * step; `notes` adds text under the command (not `run`: in MDX a slot with the name of a prop replaces it).
+ * Starlight's own Steps, Tabs and code blocks.
+ */
+import type { ComponentProps } from 'astro/types';
+import { Steps, Code } from '@astrojs/starlight/components';
+import CliInstall from './CliInstall.astro';
+
+type Install = ComponentProps<typeof CliInstall>;
+
+interface Props {
+  /** Repository name, e.g. `cv4pve-diag`, also the binary and package name. */
+  repo: string;
+  /** WinGet id, when it differs from the default of CliInstall. */
+  winget?: Install['winget'];
+  /** Channels the tool ships. Default: all. */
+  channels?: Install['channels'];
+  /** Arguments of the first run, e.g. `['--host=pve01', "--api-token='diag@pve!diag=<uuid>'", 'execute']`. */
+  run: string[];
+  /** Title of the last step, e.g. `Open the report`. */
+  result: string;
+  /** Where the token is explained, relative to the home page. Default `permissions/#user-and-token`. */
+  permissions?: string;
+}
+
+const { repo, winget, channels, run, result, permissions = 'permissions/#user-and-token' } = Astro.props;
+const home = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+// The command in the title: the arguments without the options, e.g. "cv4pve-report export".
+const command = [repo, ...run.filter((arg) => !arg.startsWith('-'))].join(' ');
+---
+
+<Steps>
+  <ol>
+    <li>
+      <p><strong>Install {repo}</strong></p>
+      <CliInstall repo={repo} winget={winget} channels={channels} />
+    </li>
+    <li>
+      <p><strong>Create an API token</strong></p>
+      <slot name="token">
+        <p>
+          Create a dedicated user and an API token in Proxmox VE, with the privileges the tool needs: see{' '}
+          <a href={home + permissions}>Permissions</a>.
+        </p>
+      </slot>
+    </li>
+    <li>
+      <p><strong>Run <code>{command}</code></strong></p>
+      <p>Point the tool at any node:</p>
+      <Code code={[repo, ...run].join(' ')} lang="bash" wrap />
+      <slot name="notes" />
+    </li>
+    <li>
+      <p><strong>{result}</strong></p>
+      <slot />
+    </li>
+  </ol>
+</Steps>

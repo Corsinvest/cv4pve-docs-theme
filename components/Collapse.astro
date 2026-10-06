@@ -1,0 +1,84 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * Collapsible block for long reference content (a table of settings, a list of tools, examples):
+ * a title to click, the content in the slot, closed until opened. It is a native <details>
+ * element, so it works without JavaScript and the browser's "find in page" opens it.
+ *
+ * Stock Starlight draws <details> as a line on the left and a chevron, easy to miss for something
+ * that hides half a page. Here it is a box with a header bar, Starlight's own chevron on the left
+ * and a Show / Hide label on the right, so it reads as something to click before it is opened.
+ *
+ * The slot is Markdown content and keeps Starlight's styles. An optional `badge` slot goes after
+ * the title, for a site's own label (e.g. an edition badge).
+ */
+interface Props {
+  title: string;
+  /** What the block holds: added as class `cv-<kind>`, for a site that wants to style a kind. */
+  kind?: string;
+  /** Start opened. */
+  open?: boolean;
+}
+
+const { title, kind, open } = Astro.props;
+---
+
+<details class:list={['cv-details', kind && `cv-${kind}`]} open={open}>
+  <summary><span>{title}</span><slot name="badge" /></summary>
+  <slot />
+</details>
+
+<style>
+  /* Selectors carry the element name and the class to win over Starlight's own <details> rules. */
+  details.cv-details {
+    padding: 0;
+    border: 1px solid var(--cv-card-border);
+    border-radius: 8px;
+    background: var(--cv-card-bg);
+  }
+  details.cv-details:hover,
+  details.cv-details:has(> summary:hover) {
+    border-color: var(--sl-color-text-accent);
+  }
+  details.cv-details > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.65rem 1rem;
+    border-radius: 7px;
+  }
+  details.cv-details > summary:hover {
+    background: var(--sl-color-accent-low);
+  }
+  details.cv-details > summary::after {
+    content: 'Show';
+    margin-left: auto;
+    padding-left: 1rem;
+    color: var(--sl-color-text-accent);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  details.cv-details[open] > summary::after {
+    content: 'Hide';
+  }
+  details.cv-details[open] > summary {
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--cv-card-border);
+    border-radius: 7px 7px 0 0;
+  }
+  /* The content comes from the slot, so it does not carry this component's scope. */
+  details.cv-details > :global(:not(summary)) {
+    margin-inline: 1rem;
+  }
+  details.cv-details > summary + :global(*) {
+    margin-top: 1rem;
+  }
+  details.cv-details > :global(:last-child:not(summary)) {
+    margin-bottom: 1rem;
+  }
+</style>

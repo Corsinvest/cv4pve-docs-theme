@@ -3,9 +3,19 @@
  * SPDX-FileCopyrightText: Copyright Corsinvest Srl
  * SPDX-License-Identifier: MIT
  *
- * Installation table of a cv4pve tool. Every channel is produced by the shared release workflow
- * (Corsinvest/.github, cv4pve-tools-publish.yml) from the tool's packaging/config, and every name
- * derives from the repository name:
+ * Installation of a cv4pve tool: one tab per operating system and, inside it, one tab per channel
+ * (zip, deb, rpm, …), so a single command is on screen: the one for the reader's system. The
+ * command is in a code block (copy button, long lines wrapped). Starlight's own tabs and code
+ * blocks; the first level is the same on every page (same `syncKey`), so the system chosen on the
+ * home page is the one open on the installation page; the second one is on its own. A system with
+ * a single channel has no second level.
+ * With `run` (home pages) the command to run the tool follows the one to install it, in a block of
+ * its own, so it is copied alone and on one line, and the link to the release files is left to
+ * the installation page.
+ *
+ * Every channel is produced by the shared release workflow (Corsinvest/.github,
+ * cv4pve-tools-publish.yml) from the tool's packaging/config, and every name derives from the
+ * repository name:
  *   release zips  <repo>-linux-{x64,arm64,arm}.zip, <repo>-osx-{x64,arm64}.zip, <repo>.exe-win-{x64,x86,arm64}.zip
  *   WinGet        Corsinvest.cv4pve.<name>          (winget-id; node-protect is "nodeprotect")
  *   Homebrew      Formula/<repo>.rb in Corsinvest/homebrew-tap
@@ -13,54 +23,148 @@
  *   macOS pkg     <repo>-<version>-{x86_64,arm64}.pkg
  * List only the channels the tool's packaging/config enables.
  */
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components';
+
 type Channel = 'linux' | 'winget' | 'windows' | 'brew' | 'pkg' | 'macos' | 'deb' | 'rpm' | 'aur';
+type Os = 'linux' | 'macos' | 'windows';
 
 interface Props {
   /** Repository name, e.g. `cv4pve-diag`, also the binary and package name. */
   repo: string;
   /** WinGet id. Default `Corsinvest.cv4pve.<name>`. */
   winget?: string;
-  /** Channels the tool ships, in table order. Default: all. */
+  /** Channels the tool ships. Default: all. */
   channels?: Channel[];
+  /** Arguments of the run command, e.g. `['--host=pve01', 'execute']`. Without it: install only. */
+  run?: string[];
 }
 
 const ALL: Channel[] = ['linux', 'deb', 'rpm', 'aur', 'winget', 'windows', 'brew', 'pkg', 'macos'];
-const { repo, winget = `Corsinvest.cv4pve.${repo.replace(/^cv4pve-/, '')}`, channels = ALL } = Astro.props;
+const { repo, winget = `Corsinvest.cv4pve.${repo.replace(/^cv4pve-/, '')}`, channels = ALL, run } = Astro.props;
 const releases = `https://github.com/Corsinvest/${repo}/releases/latest`;
+// GitHub API: the latest release with the address of every file, used where the file name holds the version.
+const api = `https://api.github.com/repos/Corsinvest/${repo}/releases/latest`;
 
-const rows: Record<Channel, { platform: string; how: string }> = {
+interface Row {
+  os: Os;
+  /** Label of the channel tab. */
+  title: string;
+  /** The command, when the channel has one that works as written. */
+  code?: string;
+  /** What to download or what else to know, as HTML: outside the block, so it is not copied. */
+  note?: string;
+}
+
+// The release zips have no version in the name, so the "latest" address always gives the current one.
+const unixZip = (download: string, platform: string) =>
+  `${download} ${releases}/download/${repo}-${platform}.zip\nunzip ${repo}-${platform}.zip\nchmod +x ${repo}`;
+
+const packageCommand = (arch: string, ext: string, install: string) =>
+  `curl -s ${api} | grep -o "https://[^\\"]*-$(${arch})\\.${ext}" | xargs curl -LO\n${install} ${repo}-*-$(${arch}).${ext}`;
+
+// A channel is one tab, or several when it ships one file per architecture.
+const rows: Record<Channel, Row | Row[]> = {
+  // The first line turns the architecture Linux reports (x86_64, aarch64, armv7l) into the word the
+  // file name uses (x64, arm64, arm), so the same command downloads the right zip on each.
   linux: {
-    platform: 'Linux',
-    how: `<code>wget ${releases}/download/${repo}-linux-x64.zip &amp;&amp; unzip ${repo}-linux-x64.zip &amp;&amp; chmod +x ${repo}</code><br/>ARM: <code>${repo}-linux-arm64.zip</code>, <code>${repo}-linux-arm.zip</code>`,
+    os: 'linux',
+    title: 'zip',
+    code: `arch=$(uname -m | sed 's/x86_64/x64/;s/aarch64/arm64/;s/armv7l/arm/')\n` + unixZip('wget', 'linux-$arch'),
   },
-  deb: { platform: 'Debian / Ubuntu', how: `<code>sudo dpkg -i ${repo}-VERSION-ARCH.deb</code> (amd64, arm64, armhf)` },
-  rpm: { platform: 'RHEL / Fedora', how: `<code>sudo rpm -i ${repo}-VERSION-ARCH.rpm</code> (x86_64, aarch64, armv7hl)` },
-  aur: { platform: 'Arch Linux', how: `<code>yay -S ${repo}</code>` },
-  winget: { platform: 'Windows (WinGet)', how: `<code>winget install ${winget}</code>` },
-  windows: { platform: 'Windows (manual)', how: `<code>${repo}.exe-win-x64.zip</code>, also x86 and arm64` },
-  brew: { platform: 'macOS (Homebrew)', how: `<code>brew install corsinvest/tap/${repo}</code>` },
-  pkg: { platform: 'macOS (installer)', how: `<code>${repo}-VERSION-arm64.pkg</code> (Apple silicon) or <code>-x86_64.pkg</code> (Intel)` },
-  macos: { platform: 'macOS (manual)', how: `<code>${repo}-osx-arm64.zip</code> or <code>${repo}-osx-x64.zip</code>` },
+  // Packages: the file name holds version and architecture. The command finds both by itself, so it
+  // works as written on every machine: the first line asks GitHub for the address of the latest
+  // file for this architecture, the second installs it. `arch` is the shell command that prints the
+  // architecture with the same word the file name uses. For rpm that is `%_target_cpu` and not
+  // `%_arch`: on 32-bit ARM the file is "armv7hl" and `%_arch` says "arm".
+  deb: {
+    os: 'linux',
+    title: 'Debian / Ubuntu',
+    code: packageCommand('dpkg --print-architecture', 'deb', 'sudo dpkg -i'),
+  },
+  rpm: {
+    os: 'linux',
+    title: 'RHEL / Fedora',
+    code: packageCommand('rpm --eval %_target_cpu', 'rpm', 'sudo rpm -i'),
+  },
+  aur: { os: 'linux', title: 'Arch Linux', code: `yay -S ${repo}` },
+  brew: { os: 'macos', title: 'Homebrew', code: `brew install corsinvest/tap/${repo}` },
+  pkg: {
+    os: 'macos',
+    title: 'Installer',
+    code: packageCommand('uname -m', 'pkg', 'sudo installer -target / -pkg'),
+  },
+  // The first line turns the architecture macOS reports (arm64, x86_64) into the word the file name
+  // uses (arm64, x64), so the same command downloads the right zip on Apple silicon and on Intel.
+  macos: {
+    os: 'macos',
+    title: 'zip',
+    code: `arch=$(uname -m | sed 's/x86_64/x64/')\n` + unixZip('curl -LO', 'osx-$arch'),
+  },
+  winget: { os: 'windows', title: 'WinGet', code: `winget install ${winget}` },
+  // The first line turns the architecture Windows reports into the word the file name uses, so the
+  // same command downloads the right zip on x64, x86 and ARM.
+  windows: {
+    os: 'windows',
+    title: 'zip',
+    code:
+      `$arch = @{ AMD64 = 'x64'; x86 = 'x86'; ARM64 = 'arm64' }[$env:PROCESSOR_ARCHITECTURE]\n` +
+      `Invoke-WebRequest ${releases}/download/${repo}.exe-win-$arch.zip -OutFile ${repo}.zip\n` +
+      `Expand-Archive ${repo}.zip -DestinationPath . -Force`,
+  },
 };
+
+// The systems, in tab order.
+const SYSTEMS: { os: Os; label: string; icon: 'linux' | 'apple' | 'seti:windows' }[] = [
+  { os: 'linux', label: 'Linux', icon: 'linux' },
+  { os: 'macos', label: 'macOS', icon: 'apple' },
+  { os: 'windows', label: 'Windows', icon: 'seti:windows' },
+];
+const lang = (os: Os) => (os === 'windows' ? 'powershell' : 'bash');
+// A zip is extracted in the current folder, so the tool is started from there; a package puts it on the PATH.
+const bin = (row: Row) => (row.title !== 'zip' ? repo : row.os === 'windows' ? `.\\${repo}` : `./${repo}`);
+const runCode = (row: Row) => run && [bin(row), ...run].join(' ');
+const shipped = channels.flatMap((c) => rows[c]);
+const tabs = SYSTEMS.map((s) => ({ ...s, rows: shipped.filter((row) => row.os === s.os) })).filter((s) => s.rows.length);
 ---
 
-<table>
-  <thead>
-    <tr><th>Platform</th><th>How</th></tr>
-  </thead>
-  <tbody>
-    {
-      channels.map((c) => (
-        <tr>
-          <td><strong>{rows[c].platform}</strong></td>
-          <td set:html={rows[c].how} />
-        </tr>
-      ))
-    }
-  </tbody>
-</table>
+<Tabs syncKey="os">
+  {
+    tabs.map((tab) => (
+      <TabItem label={tab.label} icon={tab.icon}>
+        {tab.rows.length === 1 ? (
+          <>
+            {tab.rows[0].code && <Code code={tab.rows[0].code} lang={lang(tab.os)} wrap />}
+            {run && <Code code={runCode(tab.rows[0])} lang={lang(tab.os)} wrap />}
+            {tab.rows[0].note && <p class="cv-install-note" set:html={tab.rows[0].note} />}
+          </>
+        ) : (
+          <Tabs>
+            {tab.rows.map((row) => (
+              <TabItem label={row.title}>
+                {row.code && <Code code={row.code} lang={lang(tab.os)} wrap />}
+                {run && <Code code={runCode(row)} lang={lang(tab.os)} wrap />}
+                {row.note && <p class="cv-install-note" set:html={row.note} />}
+              </TabItem>
+            ))}
+          </Tabs>
+        )}
+      </TabItem>
+    ))
+  }
+</Tabs>
 
-<p>
-  Binaries are self-contained: no .NET runtime to install. All files are on the
-  <a href={releases} target="_blank" rel="noopener noreferrer">latest release</a> page.
-</p>
+{
+  !run && (
+    <p>
+      All files are on the <a href={releases} target="_blank" rel="noopener noreferrer">latest release</a> page.
+    </p>
+  )
+}
+
+<style>
+  .cv-install-note {
+    margin-top: 0.5rem;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+  }
+</style>

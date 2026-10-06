@@ -11,33 +11,42 @@ const SUITE_URL = 'https://www.corsinvest.it/en/cv4pve/';
 /**
  * @typedef {object} CorsinvestThemeOptions
  * @property {string} repo GitHub repository name under github.com/Corsinvest, e.g. `cv4pve-diag`.
- * @property {string} [branch] Branch the "Edit page" links point to. Default `master`.
- * @property {string} [docsPath] Folder of the Starlight project inside the repository. Default `docs`.
+ * @property {string} [branch] No longer used: the theme sets no "Edit page" link. Accepted so that
+ *   sites passing it still build.
+ * @property {string} [docsPath] No longer used, as `branch`.
  * @property {{ light: string, dark?: string }} [icon] Product icon, paths under the site's `public/`
  *   folder (e.g. `/icon.svg`): used as favicon and shown before the product name in the header.
  *   `dark` is used by the dark theme and by browsers in dark mode.
  * @property {{ module: string }} [admin] cv4pve-admin module that runs the same engine, e.g.
- *   `{ module: 'diagnostics' }`: the home page gets a banner linking to that module's docs.
- * @property {import('./install-panel.js').InstallPanelOptions} [install] Install-and-run panel shown
- *   in the hero of the home page (a page with a hero and no hero image).
+ *   `{ module: 'diagnostics' }`: a "Web interface (cv4pve-admin)" button, with the cv4pve-admin icon,
+ *   as last button of the home hero, linking that module's docs.
+ * @property {import('./steps-panel.js').StepsPanelOptions} [steps] Steps panel shown in the hero of
+ *   the home page (a page with a hero and no hero image): the numbered steps to a first result.
+ * @property {import('./install-panel.js').InstallPanelOptions} [install] Install-and-run panel in the
+ *   same place, used when `steps` is not set. Prefer `steps` in the hero and the CliInstall
+ *   component in the page, where the commands can be copied.
+ * @property {'sysadmins' | 'developers'} [audience] Who the site is for: the word of the motto
+ *   ("By sysadmins, for sysadmins.", or "By developers, for developers.") under the home hero and in the footer. Default `sysadmins`; `developers`
+ *   on the sites of the API libraries.
  * @property {{ url: string, siteId: number }} [matomo] Matomo instance and site ID: page views and
  *   outbound links are tracked without cookies, so no consent banner is needed.
  */
 
 /**
  * Starlight plugin with the Corsinvest look and the settings shared by every cv4pve
- * documentation site: brand, logo, GitHub and "Edit page" links, the Corsinvest sidebar
+ * documentation site: brand, product icon, GitHub link, the Corsinvest sidebar
  * group, and external links opening in a new tab.
  *
- * Only documented Starlight settings are touched and no component is overridden, so the
- * sites stay stock Starlight and upgrade with it.
+ * Only documented Starlight settings are touched. Two components are replaced through Starlight's
+ * own `components` setting: the theme switch (ThemeSelect) and the footer (Footer, which wraps
+ * Starlight's one). The rest stays stock Starlight and upgrades with it.
  *
  * @param {CorsinvestThemeOptions} options
  * @returns {import('@astrojs/starlight/types').StarlightPlugin}
  */
 export default function corsinvestTheme(options) {
   if (!options?.repo) throw new Error(`${PACKAGE}: the "repo" option is required, e.g. { repo: 'cv4pve-diag' }`);
-  const { repo, branch = 'master', docsPath = 'docs', install, icon, admin, matomo } = options;
+  const { repo, install, steps, icon, admin, audience, matomo } = options;
 
   return {
     name: PACKAGE,
@@ -55,11 +64,16 @@ export default function corsinvestTheme(options) {
             // Only in the built site: local dev visits stay out of the statistics.
             ...(matomo && command === 'build' ? [matomoHead(matomo)] : []),
           ],
-          // A logo set by the site wins; otherwise the Corsinvest wordmark, as in the corsinvest.it header.
-          logo: config.logo ?? {
-            light: `${PACKAGE}/assets/corsinvest-wordmark.svg`,
-            dark: `${PACKAGE}/assets/corsinvest-wordmark-white.svg`,
-            alt: 'Corsinvest',
+          // No logo from the theme: the header shows the product, with its icon (the `icon` option)
+          // before the name. Corsinvest is in the suite link beside GitHub and in the footer of
+          // every page. A logo set by the site is kept as it is.
+          // The light / dark switch is an icon button in place of Starlight's drop-down. A component
+          // set by the site is kept as it is.
+          // The footer adds the signature of the suite under Starlight's own footer.
+          components: {
+            ThemeSelect: `${PACKAGE}/components/ThemeSelect.astro`,
+            Footer: `${PACKAGE}/components/Footer.astro`,
+            ...(config.components ?? {}),
           },
           // Brand first, so the site's own CSS can override it.
           customCss: [`${PACKAGE}/styles/brand.css`, ...(config.customCss ?? [])],
@@ -67,12 +81,14 @@ export default function corsinvestTheme(options) {
             ? config.social
             : [
                 { icon: 'github', label: 'GitHub', href: `https://github.com/Corsinvest/${repo}` },
-                // brand.css draws the Corsinvest "C" in place of this icon and writes the label beside it.
+                // brand.css draws the Corsinvest "C" in place of this icon; the label is for screen readers.
                 { icon: 'puzzle', label: 'Part of the cv4pve suite', href: SUITE_URL },
               ],
-          editLink: config.editLink?.baseUrl
-            ? config.editLink
-            : { baseUrl: `https://github.com/Corsinvest/${repo}/edit/${branch}/${docsPath}/` },
+          // No "Edit page" link under the pages: the theme sets no `editLink`. A site that wants it
+          // sets its own in the Starlight config.
+          // No "Last updated" date either, also when the site's config asks for it: a page that
+          // needs it sets `lastUpdated` in its frontmatter.
+          lastUpdated: false,
           sidebar: config.sidebar ? [...config.sidebar, corsinvestSidebarGroup()] : config.sidebar,
           // Shell blocks as plain code blocks, not terminal windows with the three decorative dots.
           // A frame set by the site, or per block (```bash frame="terminal"), still wins.
@@ -87,14 +103,14 @@ export default function corsinvestTheme(options) {
           }),
         });
 
-        if (install || admin) addRouteMiddleware({ entrypoint: `${PACKAGE}/route-middleware` });
+        if (install || steps || admin) addRouteMiddleware({ entrypoint: `${PACKAGE}/route-middleware` });
 
         addIntegration({
           name: `${PACKAGE}/external-links`,
           hooks: {
             'astro:config:setup'({ config: astroConfig, updateConfig: updateAstroConfig }) {
               // The route middleware reads the plugin options from this virtual module.
-              updateAstroConfig({ vite: { plugins: [virtualConfig({ repo, install, admin })] } });
+              updateAstroConfig({ vite: { plugins: [virtualConfig({ repo, install, steps, admin, audience })] } });
 
               const siteRoot = new URL(astroConfig.base ?? '/', astroConfig.site ?? 'http://localhost').href;
               const plugin = externalLinksInNewTab(siteRoot);
@@ -138,8 +154,8 @@ function productIconHead(base, icon) {
     {
       tag: 'style',
       content:
-        `.site-title img + span::before{content:'';display:inline-block;width:1.35rem;height:1.35rem;margin-right:.5rem;vertical-align:-.2rem;background:url("${light}") center/contain no-repeat}` +
-        `:root:not([data-theme='light']) .site-title img + span::before{background-image:url("${dark}")}`,
+        `.site-title > span::before{content:'';display:inline-block;width:1.35rem;height:1.35rem;margin-right:.5rem;vertical-align:-.2rem;background:url("${light}") center/contain no-repeat}` +
+        `:root:not([data-theme='light']) .site-title > span::before{background-image:url("${dark}")}`,
     },
   ];
 }
