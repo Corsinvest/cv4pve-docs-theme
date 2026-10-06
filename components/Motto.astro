@@ -1,0 +1,67 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * Who makes the cv4pve tools, for the home page, right under the hero: the motto of the suite and,
+ * under it, the fact behind it (Corsinvest is an official Proxmox partner), linked to Corsinvest's
+ * entry in the Proxmox partner directory so it can be checked.
+ * A statement to read, not a banner: the hero says what the tool does, this says who stands behind it.
+ * The motto alone is also in the footer of every page (Footer.astro).
+ *
+ * The text is not a prop on purpose: it is the motto of the suite, written once in motto.js. Its
+ * word follows the site: "By sysadmins, for sysadmins.", or "By developers, for developers." on the
+ * sites of the API libraries (the `audience` option of the theme).
+ * Self-contained markup and scoped styles (`not-content`): no Starlight internals touched.
+ */
+import config from 'virtual:cv4pve-docs-theme/config';
+import { mottoText } from '../motto.js';
+
+// Corsinvest in the Proxmox partner directory, as in the CtaBand.
+const PROXMOX_PARTNER_URL = 'https://www.proxmox.com/en/partners/find-partner/all/partner/corsinvest';
+---
+
+<div class="cv-motto not-content">
+  <p class="cv-motto-title">{mottoText(config.audience)}</p>
+  <p class="cv-motto-proof">
+    Built by Corsinvest,{' '}<a href={PROXMOX_PARTNER_URL} target="_blank" rel="noopener noreferrer" title="See our entry on the Proxmox site">official Proxmox partner</a>.
+  </p>
+</div>
+
+<style>
+  .cv-motto {
+    margin: 1.5rem auto 2.5rem;
+    max-width: 48rem;
+    text-align: center;
+  }
+  /* On a wide page the hero ends on a tall bottom padding (it grows with the viewport), and the
+     motto is pulled up into it. A narrow page has no such room: the buttons end the hero. */
+  @media (min-width: 50rem) {
+    .cv-motto {
+      margin-top: -3rem;
+    }
+  }
+  .cv-motto p {
+    margin: 0;
+  }
+  .cv-motto-title {
+    color: var(--sl-color-white);
+    font-family: var(--cv-font-display);
+    font-size: clamp(1.4rem, 3vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .cv-motto .cv-motto-proof {
+    margin-top: 0.35rem;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-base);
+  }
+  .cv-motto-proof a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .cv-motto-proof a:hover {
+    color: var(--sl-color-white);
+  }
+</style>

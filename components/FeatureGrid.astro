@@ -3,27 +3,195 @@
  * SPDX-FileCopyrightText: Copyright Corsinvest Srl
  * SPDX-License-Identifier: MIT
  *
- * Numbered feature cards for the home page, each linking to the page that explains it.
- * A relative href ("checks/") is resolved against the site base; absolute ones are kept.
+ * Feature cards: an icon beside a title (as Starlight's own Card) and a short text each, for the
+ * home page and for the lists of features inside the pages. A card with `href` links to the page
+ * that explains it and can be clicked anywhere; one without is a plain box. With `action` the link
+ * is a button at the bottom of the card, with that label, instead of the whole card.
+ *
+ * `href`, and the links in the text, are written from the root of the site ("checks/"): the site
+ * base is added here. An address with a scheme (https:, mailto:), from the root (/), relative to
+ * the page (./, ../) or an anchor (#) is kept as it is.
+ *
+ * `icon` is the name of a Starlight icon ("padlock") or, where that set has none, of an icon of
+ * another set with its prefix: Material Design ("mdi:stethoscope",
+ * https://pictogrammers.com/library/mdi/) or Material Symbols ("ms:photo_camera",
+ * https://fonts.google.com/icons, outlined where the icon has that style). An unknown name of
+ * these two sets fails the build.
+ *
+ * `color` (any CSS colour) tints the card and its icon, to tell groups of cards apart; without
+ * it the card has the colours of the theme.
+ *
+ * The text is one or more blocks, separated by an empty line: a paragraph, or a list when every
+ * line of the block starts with "- ". Inside a block these marks are read:
+ *   [EE] [CE]       the edition badge, at that point of the sentence
+ *   [[Ctrl+K]]      a key or a label; [[All clusters|tip]] with a Starlight badge variant
+ *   `text`          code: a command, a file name
+ *   **text**        bold
+ *   *text*          italic
+ *   [text](href)    a link
+ *
  * Self-contained markup and scoped styles (`not-content`): no Starlight internals touched.
  */
-interface Props {
-  items: { title: string; text: string; href: string }[];
+import { Badge, Icon, LinkButton } from '@astrojs/starlight/components';
+import type { StarlightIcon } from '@astrojs/starlight/types';
+import { icons as mdi } from '@iconify-json/mdi';
+import { icons as ms } from '@iconify-json/material-symbols';
+
+interface Item {
+  title: string;
+  text: string;
+  href?: string;
+  /** Label of a button that opens `href`, in place of the link on the whole card. */
+  action?: string;
+  icon?: StarlightIcon | `mdi:${string}` | `ms:${string}`;
+  /** A CSS colour for the card and its icon. */
+  color?: string;
+  /** Enterprise Edition only: the badge next to the title. */
+  ee?: boolean;
+  /** Community Edition, where the card has to say so. */
+  ce?: boolean;
 }
 
+interface Props {
+  items: Item[];
+  /** The number of the card (01, 02, …) on the cards without an icon. */
+  numbered?: boolean;
+}
+
+const { items, numbered } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const resolve = (href: string) => (/^(https?:)?\//.test(href) ? href : `${base}/${href}`);
-const features = Astro.props.items.map((f) => ({ ...f, href: resolve(f.href) }));
+const resolve = (href: string) => (/^([a-z][a-z0-9+.-]*:|\/|\.\.?\/|#)/i.test(href) ? href : `${base}/${href}`);
+
+type Variant = 'note' | 'tip' | 'caution' | 'danger' | 'success' | 'default';
+type Part = { text: string } | { badge: string; variant: Variant } | { code: string } | { bold: string } | { italic: string } | { link: string; href: string };
+type Block = { parts: Part[] } | { list: Part[][] };
+
+const EDITIONS = { EE: 'caution', CE: 'note' } as const;
+// The text cut at its marks, in order.
+const parts = (text: string): Part[] =>
+  text
+    .split(/(\[EE\]|\[CE\]|\[\[[^\]]+\]\]|`[^`]+`|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|\[[^\]]+\]\([^)]+\))/)
+    .filter(Boolean)
+    .map((piece) => {
+      if (piece === '[EE]' || piece === '[CE]') {
+        const edition = piece.slice(1, -1) as keyof typeof EDITIONS;
+        return { badge: edition, variant: EDITIONS[edition] };
+      }
+      if (piece.startsWith('[[')) {
+        const [badge, variant = 'default'] = piece.slice(2, -2).split('|');
+        return { badge, variant: variant as Variant };
+      }
+      if (piece.startsWith('`')) return { code: piece.slice(1, -1) };
+      if (piece.startsWith('**')) return { bold: piece.slice(2, -2) };
+      if (/^\*[^*]+\*$/.test(piece)) return { italic: piece.slice(1, -1) };
+      const link = piece.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+      return link ? { link: link[1], href: resolve(link[2]) } : { text: piece };
+    });
+
+// The blocks of a text: a list when every line starts with "- ", else a paragraph.
+const blocks = (text: string): Block[] =>
+  text
+    .trim()
+    .split(/\n\s*\n/)
+    .map((block) => {
+      const lines = block.split('\n').map((l) => l.trim());
+      return lines.every((l) => l.startsWith('- ')) ? { list: lines.map((l) => parts(l.slice(2))) } : { parts: parts(lines.join(' ')) };
+    });
+
+// The drawing of an icon of another set, for a name with its prefix.
+const SETS = { mdi, ms } as const;
+const svgBody = (icon: string) => {
+  const [prefix, raw] = icon.split(':') as [keyof typeof SETS, string];
+  const set = SETS[prefix];
+  if (!set) return undefined;
+  const find = (name: string) => set.icons[name] ?? set.icons[set.aliases?.[name]?.parent ?? ''];
+  // Material Symbols: the name as in the source code (photo_camera), outlined where it exists.
+  const name = raw.replaceAll('_', '-');
+  const found = prefix === 'ms' ? find(`${name}-outline`) ?? find(name) : find(name);
+  if (!found) throw new Error(`FeatureGrid: unknown icon "${icon}"`);
+  return found.body;
+};
+
+const features = items.map((f, i) => ({
+  ...f,
+  href: f.href && resolve(f.href),
+  blocks: blocks(f.text),
+  linked: !!f.href && !f.action,
+  svg: f.icon?.includes(':') ? svgBody(f.icon) : undefined,
+  number: numbered && !f.icon ? String(i + 1).padStart(2, '0') : undefined,
+}));
 ---
 
 <div class="cv-features not-content">
   {
-    features.map((f, i) => (
-      <a class="cv-feature" href={f.href}>
-        <span class="cv-feature-num">{String(i + 1).padStart(2, '0')}</span>
-        <h3>{f.title}</h3>
-        <p>{f.text}</p>
-      </a>
+    features.map((f) => (
+      <article
+        class:list={['cv-feature', f.linked && 'cv-feature-linked', f.color && 'cv-feature-colored']}
+        style={f.color && `--cv-feature-color: ${f.color}`}
+      >
+        <div class="cv-feature-head">
+          {f.svg && <svg class="cv-feature-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" set:html={f.svg} />}
+          {f.icon && !f.svg && <Icon name={f.icon as StarlightIcon} class="cv-feature-icon" />}
+          {f.number && <span class="cv-feature-num">{f.number}</span>}
+          <h3>
+            {f.linked ? <a href={f.href}>{f.title}</a> : f.title}
+            {f.ee && <Badge text="EE" variant="caution" size="small" />}
+            {f.ce && <Badge text="CE" variant="note" size="small" />}
+          </h3>
+        </div>
+        <div class="cv-feature-body">
+          {f.blocks.map((b) =>
+            'list' in b ? (
+              <ul>
+                {b.list.map((item) => (
+                  <li>
+                    {item.map((p) =>
+                'badge' in p ? (
+                  <Badge text={p.badge} variant={p.variant} size="small" />
+                ) : 'code' in p ? (
+                  <code>{p.code}</code>
+                ) : 'bold' in p ? (
+                  <strong>{p.bold}</strong>
+                ) : 'italic' in p ? (
+                  <em>{p.italic}</em>
+                ) : 'link' in p ? (
+                  <a href={p.href}>{p.link}</a>
+                ) : (
+                  p.text
+                ),
+              )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>
+                {b.parts.map((p) =>
+                'badge' in p ? (
+                  <Badge text={p.badge} variant={p.variant} size="small" />
+                ) : 'code' in p ? (
+                  <code>{p.code}</code>
+                ) : 'bold' in p ? (
+                  <strong>{p.bold}</strong>
+                ) : 'italic' in p ? (
+                  <em>{p.italic}</em>
+                ) : 'link' in p ? (
+                  <a href={p.href}>{p.link}</a>
+                ) : (
+                  p.text
+                ),
+              )}
+              </p>
+            ),
+          )}
+        </div>
+        {f.action && f.href && (
+          <div class="cv-feature-action">
+            <LinkButton href={f.href} {...(/^https?:/.test(f.href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+              {f.action}
+            </LinkButton>
+          </div>
+        )}
+      </article>
     ))
   }
 </div>
@@ -45,18 +213,47 @@ const features = Astro.props.items.map((f) => ({ ...f, href: resolve(f.href) }))
     }
   }
   .cv-feature {
-    display: block;
+    position: relative;
+    display: flex;
+    flex-direction: column;
     padding: 1.5rem;
     border: 1px solid var(--cv-card-border);
     border-radius: 8px;
     background: var(--cv-card-bg);
-    color: inherit;
-    text-decoration: none;
     transition: border-color 0.15s, transform 0.15s;
   }
-  .cv-feature:hover {
+  .cv-feature-linked:hover {
     border-color: var(--cv-blue-bright);
     transform: translateY(-2px);
+  }
+  /* A card with a colour: a light tint of it as background, the icon in the colour itself, brought
+     towards the text colour so it stays readable on the dark theme too. */
+  .cv-feature-colored {
+    border-color: color-mix(in srgb, var(--cv-feature-color) 70%, var(--cv-card-border));
+    background: color-mix(in srgb, var(--cv-feature-color) 16%, var(--cv-card-bg));
+  }
+  .cv-feature-colored .cv-feature-icon {
+    color: color-mix(in srgb, var(--cv-feature-color) 75%, var(--sl-color-white));
+  }
+  .cv-feature-colored.cv-feature-linked:hover {
+    border-color: var(--cv-feature-color);
+  }
+  .cv-feature[hidden] {
+    display: none;
+  }
+  /* Icon and title on one row, as Starlight's own Card. */
+  .cv-feature-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .cv-feature-icon {
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--cv-blue-bright);
+    font-size: 1.75rem;
   }
   .cv-feature-num {
     font-family: var(--cv-font-display);
@@ -65,13 +262,77 @@ const features = Astro.props.items.map((f) => ({ ...f, href: resolve(f.href) }))
     color: var(--cv-blue-bright);
   }
   .cv-feature h3 {
-    margin: 0.5rem 0;
-    font-size: 1.5rem;
+    margin: 0;
+    font-size: var(--sl-text-h4);
+    line-height: var(--sl-line-height-headings);
     color: var(--sl-color-white);
   }
-  .cv-feature p {
-    margin: 0;
+  /* The edition badge after the title: apart from it, on its middle line. */
+  .cv-feature h3 :global(.sl-badge) {
+    margin-inline-start: 0.5rem;
+    vertical-align: middle;
+  }
+  .cv-feature h3 a {
+    color: inherit;
+    text-decoration: none;
+  }
+  /* The link of the title covers the whole card, so the card is clicked anywhere; the links in
+     the text stay above it. */
+  .cv-feature h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+  }
+  .cv-feature-body {
     color: var(--sl-color-gray-2);
     font-size: var(--sl-text-sm);
+  }
+  .cv-feature-body p,
+  .cv-feature-body ul {
+    margin: 0;
+  }
+  .cv-feature-body > * + * {
+    margin-top: 0.75rem;
+  }
+  .cv-feature-body ul {
+    padding-inline-start: 1.25rem;
+  }
+  .cv-feature-body li + li {
+    margin-top: 0.25rem;
+  }
+  .cv-feature-body a {
+    position: relative;
+    z-index: 1;
+    color: var(--sl-color-text-accent);
+  }
+  .cv-feature-body strong {
+    color: var(--sl-color-white);
+  }
+  /* The button of a card with `action`: at the bottom, whatever the length of the text. */
+  .cv-feature-action {
+    margin-top: auto;
+    padding-top: 1.25rem;
+  }
+  /* In a card with a colour the button takes it, so two cards side by side are told apart by
+     their buttons too. Dark text: it reads on any of the bright colours used for the cards. */
+  .cv-feature-colored .cv-feature-action :global(.sl-link-button) {
+    border-color: var(--cv-feature-color);
+    background: var(--cv-feature-color);
+    color: #0b1622;
+  }
+  .cv-feature-colored .cv-feature-action :global(.sl-link-button:hover) {
+    background: color-mix(in srgb, var(--cv-feature-color) 85%, #fff);
+  }
+  .cv-feature code {
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    background: var(--sl-color-gray-6);
+    font-size: 0.9em;
+  }
+
+  /* Inside a page (the ones with the sidebar) the column is narrower: as many columns as fit. */
+  :global([data-has-sidebar]) .cv-features {
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   }
 </style>

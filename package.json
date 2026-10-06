@@ -1,6 +1,6 @@
 {
   "name": "@corsinvest/cv4pve-docs-theme",
-  "version": "2.6.2",
+  "version": "2.7.0",
   "description": "Starlight theme for the cv4pve documentation sites by Corsinvest.",
   "keywords": [
     "starlight",
@@ -32,6 +32,9 @@
     "index.js",
     "index.d.ts",
     "install-panel.js",
+    "steps-panel.js",
+    "motto.js",
+    "admin-link.js",
     "route-middleware.js",
     "icons.js",
     "components",
@@ -41,7 +44,9 @@
     "3rd-party-licenses.md"
   ],
   "dependencies": {
-    "@astrojs/markdown-satteri": "^0.4.2"
+    "@astrojs/markdown-satteri": "^0.4.2",
+    "@iconify-json/material-symbols": "^1.2.94",
+    "@iconify-json/mdi": "^1.2.3"
   },
   "peerDependencies": {
     "@astrojs/starlight": ">=0.42.0",

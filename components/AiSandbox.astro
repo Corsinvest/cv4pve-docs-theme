@@ -57,7 +57,7 @@ Once a day it also asks <code>api.github.com</code> for a newer release: refusin
   <Code code={JSON.stringify(claude, null, 2)} lang="json" title=".claude/settings.json" />
 
   <p>
-    On macOS, with the self-signed certificate of the nodes, a cv4pve-cli user found in
+    On macOS, with the self-signed certificate of the nodes, a cv4pve-cli user found in{' '}
     <a href="https://github.com/Corsinvest/cv4pve-cli/issues/10">issue #10</a> that the sandbox blocked every HTTPS
     connection, even with certificate validation off: .NET still asks the macOS trust service. {tool} connects
     with the same library, so the same fix may be needed:
@@ -70,8 +70,8 @@ Once a day it also asks <code>api.github.com</code> for a newer release: refusin
   <Code code={codex} lang="text" title="~/.codex/rules/default.rules" />
 
   <p>
-    Check these settings against the documentation of your assistant:
-    <a href="https://code.claude.com/docs/en/sandboxing">Claude Code</a>,
+    Check these settings against the documentation of your assistant:{' '}
+    <a href="https://code.claude.com/docs/en/sandboxing">Claude Code</a>,{' '}
     <a href="https://learn.chatgpt.com/docs/agent-configuration/rules">Codex</a>.
   </p>
 </details>

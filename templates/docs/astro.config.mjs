@@ -17,13 +17,18 @@ export default defineConfig({
           icon: { light: '/icon.svg', dark: '/icon-dark.svg' },
           // Only if cv4pve-admin has a module running the same engine (see the theme README).
           admin: { module: 'TODO' },
-          install: {
-            targets: ['linux', 'macos', 'windows'],
-            run: ['--host=pve01', "--api-token='user@pve!token=…'", 'TODO-command'],
+          // Steps panel in the home hero: the same steps, in the same order and words, as
+          // Getting started (CliGettingStarted). The commands are in the pages (CliInstall).
+          steps: {
+            items: [
+              'Install cv4pve-TOOL',
+              { text: 'Create an API token', href: 'permissions/#user-and-token' },
+              'Run `cv4pve-TOOL TODO-command`',
+              'TODO: read the result',
+            ],
           },
         }),
       ],
-      lastUpdated: true,
       sidebar: [
         { label: 'Start here', items: ['getting-started', 'permissions', 'connection', 'troubleshooting'] },
         // TODO: the tool's own reference pages.

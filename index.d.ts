@@ -29,19 +29,40 @@ export interface InstallPanelOptions {
   output?: { text: string; tone?: 'critical' | 'warning' | 'info' | 'ok' }[];
 }
 
+export interface StepsPanelOptions {
+  /**
+   * The steps, in order: three or four short lines. Text between backticks is shown as code.
+   * A step with `href` (relative to the home page) links to the page that explains it.
+   */
+  items: (string | { text: string; href: string })[];
+  /** Start of the title. Default `Up and running in`. */
+  title?: string;
+  /** End of the title, in the accent colour. Default: the number of steps, e.g. `4 steps`. */
+  highlight?: string;
+  /** Link under the steps, `href` relative to the home page. Default: Getting Started. */
+  link?: { text: string; href: string };
+}
+
 export interface CorsinvestThemeOptions {
   /** GitHub repository name under github.com/Corsinvest, e.g. `cv4pve-diag`. */
   repo: string;
-  /** Branch the "Edit page" links point to. Default `master`. */
+  /** No longer used: the theme sets no "Edit page" link. Accepted so that sites passing it still build. */
   branch?: string;
-  /** Folder of the Starlight project inside the repository. Default `docs`. */
+  /** No longer used, as `branch`. */
   docsPath?: string;
   /** Product icon, paths under the site's `public/` folder: favicon and icon before the product name. */
   icon?: { light: string; dark?: string };
-  /** cv4pve-admin module running the same engine: banner on the home page. */
+  /** cv4pve-admin module running the same engine: a button to it in the home hero. */
   admin?: { module: string };
-  /** Install-and-run panel in the home hero. */
+  /** Steps panel in the home hero: the numbered steps to a first result. */
+  steps?: StepsPanelOptions;
+  /** Install-and-run panel in the home hero, used when `steps` is not set. */
   install?: InstallPanelOptions;
+  /**
+   * Who the site is for: the word of the motto ("By sysadmins, for sysadmins."). Default `sysadmins`;
+   * `developers` on the sites of the API libraries.
+   */
+  audience?: 'sysadmins' | 'developers';
   /** Matomo instance and site ID: page views and outbound links, without cookies. */
   matomo?: { url: string; siteId: number };
 }

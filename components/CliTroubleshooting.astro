@@ -35,7 +35,7 @@ const { api = true } = Astro.props;
     <tr>
       <td><code>--debug</code></td>
       <td>
-        On an error, prints the exception type and stack trace after the <code>ERROR:</code> line.
+        On an error, prints the exception type and stack trace after the <code>ERROR:</code> line.{' '}
         {
           api ? (
             <>
@@ -51,8 +51,8 @@ const { api = true } = Astro.props;
     <tr>
       <td><code>--log-level</code></td>
       <td>
-        <code>Trace</code>, <code>Debug</code>, <code>Information</code>, <code>Warning</code> (default),
-        <code>Error</code> or <code>Critical</code>; overrides <code>--debug</code>.
+        <code>Trace</code>, <code>Debug</code>, <code>Information</code>, <code>Warning</code> (default),{' '}
+        <code>Error</code> or <code>Critical</code>; overrides <code>--debug</code>.{' '}
         {
           api && (
             <>

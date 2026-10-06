@@ -1,0 +1,129 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * Footer of the cv4pve sites: Starlight's own footer (previous and next page), then the
+ * signature of the suite: its motto ("By sysadmins, for sysadmins.", see motto.js), the Corsinvest wordmark and
+ * one line with the suite, "Made with ❤️ in Italy" and the copyright, as at the end of the README of
+ * every cv4pve repository. Last, the trademark notice: the sites use the Proxmox name everywhere, so
+ * they say whose it is, and that cv4pve is Corsinvest's own work and not a Proxmox product (not "not
+ * affiliated": Corsinvest is a Proxmox partner). The theme registers it as the `Footer` component of
+ * Starlight; a component set by the site is kept as it is.
+ *
+ * The text is here and not in a prop on purpose: it is the same on every cv4pve site, and changes in
+ * one place. No year in the copyright, so nothing to update.
+ * The home page (a page with a hero) already has the motto under the hero (Motto.astro) and ends
+ * with the CtaBand, which says "Part of the cv4pve suite": there the footer leaves both out.
+ */
+import Default from '@astrojs/starlight/components/Footer.astro';
+import config from 'virtual:cv4pve-docs-theme/config';
+import { mottoText } from '../motto.js';
+import wordmark from '../assets/corsinvest-wordmark.svg';
+import wordmarkWhite from '../assets/corsinvest-wordmark-white.svg';
+
+// The cv4pve suite on corsinvest.it, as the other links of the theme.
+const SUITE_URL = 'https://www.corsinvest.it/en/cv4pve/';
+const CORSINVEST_URL = 'https://www.corsinvest.it';
+
+const home = Boolean(Astro.locals.starlightRoute.entry.data.hero);
+---
+
+<Default><slot /></Default>
+
+<div class="cv-footer not-content">
+  {!home && <p class="cv-footer-motto">{mottoText(config.audience)}</p>}
+  <a class="cv-footer-logo" href={SUITE_URL} target="_blank" rel="noopener noreferrer" title="The cv4pve suite by Corsinvest">
+    <img class="cv-footer-on-light" src={wordmark.src} alt="Corsinvest" width="657" height="137" loading="lazy" />
+    <img class="cv-footer-on-dark" src={wordmarkWhite.src} alt="Corsinvest" width="657" height="137" loading="lazy" />
+  </a>
+  <p class="cv-footer-line">
+    {
+      !home && (
+        <span>
+          Part of the <a href={SUITE_URL} target="_blank" rel="noopener noreferrer">cv4pve suite</a>
+        </span>
+      )
+    }
+    <span>Made with ❤️ in Italy</span>
+    <span>
+      Copyright © <a href={CORSINVEST_URL} target="_blank" rel="noopener noreferrer">Corsinvest Srl</a>
+    </span>
+  </p>
+  <p class="cv-footer-legal">
+    Proxmox® is a registered trademark of Proxmox Server Solutions GmbH. cv4pve is developed by Corsinvest and is not a
+    Proxmox product.
+  </p>
+</div>
+
+<style>
+  .cv-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 2.5rem;
+    padding: 1.5rem 0 1rem;
+    border-top: 1px solid var(--sl-color-hairline);
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-xs);
+    text-align: center;
+  }
+  .cv-footer-logo {
+    display: inline-flex;
+  }
+  .cv-footer img {
+    width: auto;
+    height: 1.25rem;
+  }
+  .cv-footer-logo:hover img {
+    opacity: 0.8;
+  }
+  .cv-footer p {
+    margin: 0;
+  }
+  /* The motto as a signature: the display font of the brand, at the size of the body text. */
+  .cv-footer-motto {
+    color: var(--sl-color-white);
+    font-family: var(--cv-font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  /* The trademark notice: smaller and dimmer than the line above, it is there to be found, not read. */
+  .cv-footer-legal {
+    max-width: 40rem;
+    color: var(--sl-color-gray-4);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+  }
+  .cv-footer-line {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 0;
+  }
+  /* A middle dot between the parts, also when the line wraps. */
+  .cv-footer-line span + span::before {
+    content: '·';
+    margin: 0 0.6em;
+  }
+  .cv-footer-line a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .cv-footer-line a:hover {
+    color: var(--sl-color-white);
+  }
+  /* Dark wordmark on the light theme, white one on the dark theme. */
+  .cv-footer-on-light {
+    display: none;
+  }
+  :global(:root[data-theme='light']) .cv-footer-on-light {
+    display: block;
+  }
+  :global(:root[data-theme='light']) .cv-footer-on-dark {
+    display: none;
+  }
+</style>

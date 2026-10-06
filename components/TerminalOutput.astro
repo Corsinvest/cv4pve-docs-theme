@@ -1,0 +1,152 @@
+---
+/*
+ * SPDX-FileCopyrightText: Copyright Corsinvest Srl
+ * SPDX-License-Identifier: MIT
+ *
+ * What a tool prints, line by line, shown the way the terminal shows it: the command on top (when it
+ * is not already on the page), then the output in monospace. For output that is not a table (TerminalTable is for tables): the log of a run,
+ * a start-up message, a list of files written.
+ *
+ * A line can have a tone, to tell the parts of the output apart at a glance: what the run was asked
+ * to do, what it worked on, what it produced. The colours are the documentation's, not the tool's:
+ * the tools print plain text. Same frame, colours and light theme as TerminalTable.
+ *
+ * Self-contained markup and scoped styles inside the page content (`not-content`): it touches no
+ * Starlight internals, so Starlight upgrades cannot break it.
+ */
+type Tone = 'ok' | 'warning' | 'critical' | 'info' | 'muted' | 'accent' | 'code';
+
+interface Props {
+  /**
+   * Command that produces the output, shown in the bar on top. Leave it out when the command is
+   * already on the page right above, e.g. on a home page under CliInstall: only the output is shown.
+   */
+  command?: string;
+  /** The lines of the output, in order: plain text, or text with a tone. An empty string is an empty line. */
+  lines: (string | { text: string; tone?: Tone })[];
+  /** Note under the output, e.g. what the colours mean. May contain HTML. */
+  note?: string;
+}
+
+const { command, lines, note } = Astro.props;
+const rows = lines.map((line) => (typeof line === 'string' ? { text: line, tone: undefined } : line));
+---
+
+<div class="cv-terminal not-content">
+  {command && <div class="cv-terminal-bar"><em>{command}</em></div>}
+  <div class="cv-scroll">
+    <pre>{rows.map((row) => <span class:list={['cv-line', row.tone && `cv-${row.tone}`]}>{row.text || ' '}</span>)}</pre>
+  </div>
+  {note && <div class="cv-terminal-foot" set:html={note} />}
+</div>
+
+<style>
+  .cv-terminal {
+    margin: 1rem 0 2rem;
+    border: 1px solid var(--cv-card-border);
+    border-radius: 8px;
+    background: #0b1b2b;
+    color: #d6e2ee;
+    box-shadow: 0 20px 48px color-mix(in srgb, var(--cv-blue) 25%, transparent);
+    overflow: hidden;
+    font-family: var(--sl-font-mono);
+    font-size: 0.8rem;
+  }
+  .cv-terminal-bar {
+    padding: 0.7rem 1rem;
+    background: #10263b;
+  }
+  .cv-terminal-bar em {
+    display: block;
+    font-style: normal;
+    color: #8fa9c2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Long lines scroll sideways on narrow screens rather than wrap: a wrapped line reads as two. */
+  .cv-scroll {
+    overflow-x: auto;
+    padding: 0.75rem 1rem;
+  }
+  pre {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    line-height: 1.6;
+    white-space: pre;
+  }
+  /* One span per line, each on its own row: no line breaks to keep in the markup. */
+  .cv-line {
+    display: block;
+  }
+  .cv-muted {
+    color: #8fa9c2;
+  }
+  .cv-code {
+    color: #7db2e8;
+  }
+  .cv-accent {
+    color: #fff;
+    font-weight: 700;
+  }
+  /* Same hues as the site's badges and asides (--sl-hue-*, set by the theme), with a lightness fixed
+     for the dark terminal background in both site themes. */
+  .cv-ok {
+    color: hsl(var(--sl-hue-green) 55% 69%);
+  }
+  .cv-warning {
+    color: hsl(var(--sl-hue-orange) 85% 67%);
+  }
+  .cv-critical {
+    color: hsl(var(--sl-hue-red) 100% 77%);
+  }
+  .cv-info {
+    color: hsl(var(--sl-hue-blue) 80% 76%);
+  }
+  .cv-terminal-foot {
+    padding: 0.7rem 1rem;
+    border-top: 1px solid rgb(125 178 232 / 0.12);
+    color: #8fa9c2;
+    font-family: var(--sl-font);
+    font-size: 0.8rem;
+  }
+  .cv-terminal-foot :global(code) {
+    color: #d6e2ee;
+  }
+
+  /* Light theme: a light terminal, so it does not stand out as a black block on a light page.
+     The tones use Starlight's -high tokens, which it adapts to the theme, as TerminalTable does. */
+  :global(:root[data-theme='light']) .cv-terminal {
+    background: #f4f7fb;
+    color: #1b2b3b;
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--cv-blue) 12%, transparent);
+  }
+  :global(:root[data-theme='light']) .cv-terminal-bar {
+    background: #e6edf5;
+  }
+  :global(:root[data-theme='light']) .cv-terminal-bar em,
+  :global(:root[data-theme='light']) .cv-muted,
+  :global(:root[data-theme='light']) .cv-terminal-foot {
+    color: #4a6178;
+  }
+  :global(:root[data-theme='light']) .cv-terminal-foot {
+    border-top-color: rgb(26 66 105 / 0.12);
+  }
+  :global(:root[data-theme='light']) .cv-terminal-foot :global(code) {
+    color: #1b2b3b;
+  }
+  :global(:root[data-theme='light']) .cv-code {
+    color: var(--cv-blue-bright);
+  }
+  :global(:root[data-theme='light']) .cv-accent {
+    color: #0b1b2b;
+  }
+  :global(:root[data-theme='light']) .cv-ok { color: var(--sl-color-green-high); }
+  :global(:root[data-theme='light']) .cv-warning { color: var(--sl-color-orange-high); }
+  :global(:root[data-theme='light']) .cv-critical { color: var(--sl-color-red-high); }
+  :global(:root[data-theme='light']) .cv-info { color: var(--sl-color-blue-high); }
+</style>

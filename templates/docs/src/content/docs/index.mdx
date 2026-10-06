@@ -13,9 +13,18 @@ hero:
 
 import FeatureGrid from '@corsinvest/cv4pve-docs-theme/components/FeatureGrid.astro';
 import CtaBand from '@corsinvest/cv4pve-docs-theme/components/CtaBand.astro';
+import Motto from '@corsinvest/cv4pve-docs-theme/components/Motto.astro';
+import CliInstall from '@corsinvest/cv4pve-docs-theme/components/CliInstall.astro';
 import proxmoxLogo from '../../assets/proxmox-logo.svg';
 
-{/* The hero panel (install and run) and the cv4pve-admin banner come from the theme options in astro.config.mjs. */}
+{/* The hero panel (the steps) and the cv4pve-admin banner come from the theme options in astro.config.mjs. */}
+
+<Motto />
+
+<CliInstall
+  repo="cv4pve-TOOL"
+  run={['--host=pve01', "--api-token='user@pve!token=…'", 'TODO-command']}
+/>
 
 ## Why
 

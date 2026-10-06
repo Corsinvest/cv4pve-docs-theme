@@ -44,7 +44,7 @@ const { user = 'user@pve' } = Astro.props;
       <td><code>--username</code> / <code>--password</code></td>
       <td>
         Alternative to the token, e.g. <code>--username={user}</code> (without a realm, <code>pam</code> is
-        used). Accounts with two-factor authentication cannot log in this way: use a token.
+        used). Accounts with two-factor authentication cannot log in this way: use a token.{' '}
         <code>--password=file:/path/secret</code> asks for the password the first time and saves it in that
         file <strong>obfuscated, not encrypted</strong> (the key is built into the tool): protect the file like
         the password itself.
