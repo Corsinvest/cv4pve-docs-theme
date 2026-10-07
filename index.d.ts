@@ -63,6 +63,12 @@ export interface CorsinvestThemeOptions {
    * `developers` on the sites of the API libraries.
    */
   audience?: 'sysadmins' | 'developers';
+  /**
+   * What the product is, in the words people search for, e.g. `Proxmox VE API client for Java`: the
+   * `<title>` of a page becomes "Errors | Proxmox VE API client for Java" in place of
+   * "Errors | cv4pve-api-java". A page that sets its own `<title>` in the frontmatter keeps it.
+   */
+  titleSuffix?: string;
   /** Matomo instance and site ID: page views and outbound links, without cookies. */
   matomo?: { url: string; siteId: number };
 }

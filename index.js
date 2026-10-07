@@ -3,10 +3,13 @@
  * SPDX-License-Identifier: MIT
  */
 
+import { existsSync } from 'node:fs';
 import { isSatteriProcessor, satteri } from '@astrojs/markdown-satteri';
 
 const PACKAGE = '@corsinvest/cv4pve-docs-theme';
 const SUITE_URL = 'https://www.corsinvest.it/en/cv4pve/';
+// Social card of a site: this file in its `public/` folder, in this size.
+const SOCIAL_IMAGE = { file: 'og.png', width: 1200, height: 630 };
 
 /**
  * @typedef {object} CorsinvestThemeOptions
@@ -28,6 +31,10 @@ const SUITE_URL = 'https://www.corsinvest.it/en/cv4pve/';
  * @property {'sysadmins' | 'developers'} [audience] Who the site is for: the word of the motto
  *   ("By sysadmins, for sysadmins.", or "By developers, for developers.") under the home hero and in the footer. Default `sysadmins`; `developers`
  *   on the sites of the API libraries.
+ * @property {string} [titleSuffix] What the product is, in the words people search for, e.g.
+ *   `Proxmox VE API client for Java`: the `<title>` of a page becomes "Errors | Proxmox VE API client
+ *   for Java" in place of "Errors | cv4pve-api-java". A page that sets its own `<title>` in the
+ *   frontmatter (`head`) keeps it.
  * @property {{ url: string, siteId: number }} [matomo] Matomo instance and site ID: page views and
  *   outbound links are tracked without cookies, so no consent banner is needed.
  */
@@ -46,7 +53,7 @@ const SUITE_URL = 'https://www.corsinvest.it/en/cv4pve/';
  */
 export default function corsinvestTheme(options) {
   if (!options?.repo) throw new Error(`${PACKAGE}: the "repo" option is required, e.g. { repo: 'cv4pve-diag' }`);
-  const { repo, install, steps, icon, admin, audience, matomo } = options;
+  const { repo, install, steps, icon, admin, audience, titleSuffix, matomo } = options;
 
   return {
     name: PACKAGE,
@@ -60,6 +67,7 @@ export default function corsinvestTheme(options) {
           head: [
             ...(config.head ?? []),
             ...(icon ? productIconHead(base, icon) : []),
+            ...socialImageHead(config, astroConfig, base),
             socialLinksInNewTab(),
             // Only in the built site: local dev visits stay out of the statistics.
             ...(matomo && command === 'build' ? [matomoHead(matomo)] : []),
@@ -103,14 +111,14 @@ export default function corsinvestTheme(options) {
           }),
         });
 
-        if (install || steps || admin) addRouteMiddleware({ entrypoint: `${PACKAGE}/route-middleware` });
+        if (install || steps || admin || titleSuffix) addRouteMiddleware({ entrypoint: `${PACKAGE}/route-middleware` });
 
         addIntegration({
           name: `${PACKAGE}/external-links`,
           hooks: {
             'astro:config:setup'({ config: astroConfig, updateConfig: updateAstroConfig }) {
               // The route middleware reads the plugin options from this virtual module.
-              updateAstroConfig({ vite: { plugins: [virtualConfig({ repo, install, steps, admin, audience })] } });
+              updateAstroConfig({ vite: { plugins: [virtualConfig({ repo, install, steps, admin, audience, titleSuffix })] } });
 
               const siteRoot = new URL(astroConfig.base ?? '/', astroConfig.site ?? 'http://localhost').href;
               const plugin = externalLinksInNewTab(siteRoot);
@@ -157,6 +165,34 @@ function productIconHead(base, icon) {
         `.site-title > span::before{content:'';display:inline-block;width:1.35rem;height:1.35rem;margin-right:.5rem;vertical-align:-.2rem;background:url("${light}") center/contain no-repeat}` +
         `:root:not([data-theme='light']) .site-title > span::before{background-image:url("${dark}")}`,
     },
+  ];
+}
+
+/**
+ * Head entries for the social card, the image shown when a page is shared: only when the site has
+ * `og.png` (1200x630) in its `public/` folder. The same image for every page; a page with its own
+ * sets `og:image` in its frontmatter. Left alone when the site's config already sets `og:image`.
+ * @param {any} config Starlight user config.
+ * @param {any} astroConfig
+ * @param {string} base Site base path without trailing slash.
+ */
+function socialImageHead(config, astroConfig, base) {
+  // The address must be absolute: without `site` there is none to write.
+  if (!astroConfig.site || !existsSync(new URL(SOCIAL_IMAGE.file, astroConfig.publicDir))) return [];
+  if (config.head?.some((/** @type {any} */ entry) => entry.attrs?.property === 'og:image')) return [];
+  const url = new URL(`${base}/${SOCIAL_IMAGE.file}`, astroConfig.site).href;
+  const title = typeof config.title === 'string' ? config.title : '';
+  const alt = [title, config.description].filter(Boolean).join(': ');
+  const meta = (/** @type {'property' | 'name'} */ key, /** @type {string} */ name, /** @type {string} */ content) => ({
+    tag: 'meta',
+    attrs: { [key]: name, content },
+  });
+  return [
+    meta('property', 'og:image', url),
+    meta('property', 'og:image:width', String(SOCIAL_IMAGE.width)),
+    meta('property', 'og:image:height', String(SOCIAL_IMAGE.height)),
+    ...(alt ? [meta('property', 'og:image:alt', alt)] : []),
+    meta('name', 'twitter:image', url),
   ];
 }
 
