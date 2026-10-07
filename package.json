@@ -1,6 +1,6 @@
 {
   "name": "@corsinvest/cv4pve-docs-theme",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "Starlight theme for the cv4pve documentation sites by Corsinvest.",
   "keywords": [
     "starlight",
@@ -41,6 +41,7 @@
     "styles",
     "fonts",
     "assets",
+    "tools",
     "3rd-party-licenses.md"
   ],
   "dependencies": {

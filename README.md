@@ -113,7 +113,14 @@ export default defineConfig({
 | `icon` | - | Product icon `{ light, dark? }`, paths in the site's `public/`: favicon and icon before the product name in the header |
 | `steps` | - | Steps panel in the home hero, see below |
 | `install` | - | Older install-and-run panel in the home hero, used when `steps` is not set, see below |
+| `titleSuffix` | - | What the product is, in the words people search for, e.g. `Proxmox VE API client for Java`: the `<title>` of a page becomes "Errors \| Proxmox VE API client for Java" in place of "Errors \| cv4pve-api-java". A page that sets its own `<title>` in the frontmatter (`head`) keeps it |
 | `matomo` | - | `{ url, siteId }`: page views and outbound links sent to that Matomo instance, without cookies; no consent banner needed. Anonymise IPs on the Matomo server |
+
+Social card: a site with `og.png` (1200x630) in its `public/` folder gets `og:image` and `twitter:image` on every page, with no option to set. A page with its own image sets `og:image` in its frontmatter. The image is written by a script of the theme, from the texts of the home page (product name, hero title, description) and the product icon; run it from the `docs` folder, and again when the home page changes:
+
+```bash
+node node_modules/@corsinvest/cv4pve-docs-theme/tools/og-image.mjs
+```
 
 A logo or `social` set in the site's own config wins over the theme's. A site that wants the "Edit page" link sets `editLink` in its own config.
 
